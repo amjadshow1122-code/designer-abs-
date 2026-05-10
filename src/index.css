@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Manrope:wght@200..800&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Colors */
+  --color-primary: #001236;
+  --color-primary-light: #14274e;
+  --color-secondary: #775a19;
+  --color-secondary-light: #c5a059;
+  --color-background: #f8f9ff;
+  --color-surface: #ffffff;
+  --color-surface-dim: #d6dae4;
+  --color-on-background: #171c23;
+  --color-on-surface: #171c23;
+  --color-on-primary: #ffffff;
+  --color-outline: #75777f;
+  
+  /* Typography */
+  --font-heading: 'EB Garamond', serif;
+  --font-body: 'Manrope', sans-serif;
+  
+  /* Spacing */
+  --spacing-base: 8px;
+  --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 64px;
+  
+  /* Shapes */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  
+  /* Shadow */
+  --shadow-subtle: 0 4px 20px rgba(0, 18, 54, 0.05);
+  --shadow-medium: 0 10px 30px rgba(0, 18, 54, 0.1);
+}
+
+@theme {
+  --color-primary: #001236;
+  --color-primary-light: #14274e;
+  --color-secondary: #775a19;
+  --color-secondary-light: #c5a059;
+  --font-heading: 'EB Garamond', serif;
+  --font-body: 'Manrope', sans-serif;
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+    line-height: 1.6;
+    @apply antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--color-primary);
+    line-height: 1.2;
+  }
+}
+
+@layer components {
+  .container {
+    @apply w-full max-w-[1440px] mx-auto px-[var(--spacing-margin-desktop)];
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      @apply px-[var(--spacing-margin-mobile)];
+    }
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-[var(--radius-sm)] font-semibold text-sm tracking-widest uppercase transition-all duration-300;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-light hover:-translate-y-0.5 shadow-sm hover:shadow-md;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-secondary-light hover:-translate-y-0.5 shadow-sm hover:shadow-md;
+  }
+
+  .section-padding {
+    @apply py-20;
+  }
+}

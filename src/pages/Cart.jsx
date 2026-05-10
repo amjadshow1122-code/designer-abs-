@@ -1,0 +1,188 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Truck } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const Cart = () => {
+  // Mock cart data
+  const [cartItems, setCartItems] = useState([
+    {
+      id: 1,
+      name: 'Royal Oud Fragrance',
+      price: 120.00,
+      quantity: 1,
+      image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=200',
+      category: 'Fragrances'
+    },
+    {
+      id: 2,
+      name: 'Handcrafted Silk Abaya',
+      price: 245.00,
+      quantity: 1,
+      image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&q=80&w=200',
+      category: 'Traditional Wear'
+    }
+  ]);
+
+  const updateQuantity = (id, delta) => {
+    setCartItems(prev => prev.map(item => 
+      item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
+    ));
+  };
+
+  const removeItem = (id) => {
+    setCartItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const shipping = subtotal > 500 ? 0 : 25.00;
+  const total = subtotal + shipping;
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-6 px-4">
+        <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
+          <ShoppingBag size={48} />
+        </div>
+        <h1 className="text-3xl font-heading font-bold text-primary">Your cart is empty</h1>
+        <p className="text-gray-500 text-center max-w-md">
+          Explore our curated collections and find the perfect heritage piece to add to your collection.
+        </p>
+        <Link to="/shop" className="btn btn-primary px-10 py-4 mt-4">
+          Start Shopping
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-background min-h-screen py-20">
+      <div className="container">
+        <div className="flex flex-col gap-4 mb-12">
+          <h1 className="text-4xl md:text-5xl font-heading font-bold text-primary">Shopping Cart</h1>
+          <p className="text-gray-500">Review your selected finds before proceeding to checkout.</p>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* Cart Items List */}
+          <div className="w-full lg:w-2/3 flex flex-col gap-6">
+            <AnimatePresence>
+              {cartItems.map((item) => (
+                <motion.div 
+                  layout
+                  key={item.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col sm:flex-row items-center gap-6"
+                >
+                  <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  </div>
+
+                  <div className="flex-grow flex flex-col gap-1 text-center sm:text-left">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-secondary" style={{ color: 'var(--color-secondary)' }}>{item.category}</span>
+                    <h3 className="text-lg font-heading font-bold text-primary">{item.name}</h3>
+                    <p className="text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>${item.price.toFixed(2)}</p>
+                  </div>
+
+                  <div className="flex items-center border border-gray-100 rounded-lg">
+                    <button 
+                      onClick={() => updateQuantity(item.id, -1)}
+                      className="p-3 text-gray-400 hover:text-primary transition-colors"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span className="w-10 text-center text-sm font-bold">{item.quantity}</span>
+                    <button 
+                      onClick={() => updateQuantity(item.id, 1)}
+                      className="p-3 text-gray-400 hover:text-primary transition-colors"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+
+                  <div className="text-right min-w-[100px]">
+                    <p className="text-lg font-bold text-primary">${(item.price * item.quantity).toFixed(2)}</p>
+                    <button 
+                      onClick={() => removeItem(item.id)}
+                      className="text-xs font-bold text-red-400 hover:text-red-600 transition-colors uppercase tracking-widest mt-2"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+            {/* Back to Shop */}
+            <Link to="/shop" className="flex items-center gap-2 text-sm font-bold text-primary hover:text-secondary transition-all group w-fit">
+              <span className="border-b-2 border-transparent group-hover:border-secondary pb-1">Continue Shopping</span>
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+
+          {/* Summary Sidebar */}
+          <aside className="w-full lg:w-1/3 flex flex-col gap-6">
+            <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-6">
+              <h3 className="text-xl font-heading font-bold border-b border-gray-50 pb-4">Order Summary</h3>
+              
+              <div className="flex flex-col gap-4 text-sm">
+                <div className="flex justify-between items-center text-gray-500">
+                  <span>Subtotal</span>
+                  <span className="font-bold text-primary">${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-gray-500">
+                  <span>Shipping</span>
+                  <span className="font-bold text-primary">{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
+                </div>
+                <div className="flex justify-between items-center text-gray-500">
+                  <span>Estimated Tax</span>
+                  <span className="font-bold text-primary">$0.00</span>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-100 pt-6 flex justify-between items-center">
+                <span className="text-lg font-bold text-primary uppercase tracking-widest">Total</span>
+                <span className="text-2xl font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>${total.toFixed(2)}</span>
+              </div>
+
+              <Link to="/checkout" className="btn btn-primary w-full py-4 gap-3 text-base shadow-lg shadow-primary/10 flex items-center justify-center">
+                Proceed to Checkout
+                <ShieldCheck size={20} />
+              </Link>
+
+              <div className="flex flex-col gap-4 mt-2">
+                <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <Truck size={16} className="text-secondary" style={{ color: 'var(--color-secondary)' }} />
+                  <span>Free shipping on orders over $500</span>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <ShieldCheck size={16} className="text-secondary" style={{ color: 'var(--color-secondary)' }} />
+                  <span>Secure payment with 256-bit SSL encryption</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Promo Code */}
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-4">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400">Promo Code</h4>
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Enter code" 
+                  className="flex-grow bg-gray-50 border border-transparent focus:bg-white focus:border-secondary px-4 py-3 rounded-lg text-sm outline-none transition-all"
+                />
+                <button className="btn border border-primary text-primary hover:bg-primary hover:text-white px-6 py-2 text-xs">
+                  Apply
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Cart;
