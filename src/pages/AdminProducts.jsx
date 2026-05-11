@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 
   Search, 
@@ -10,19 +10,122 @@ import {
   ExternalLink,
   ChevronLeft,
   ChevronRight,
-  Package
+  Package,
+  X,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const AdminProducts = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    price: '',
+    category: '',
+    image_url: '',
+    rating: 5,
+    is_featured: false
+  });
 
-  const products = [
-    { id: 1, name: 'Royal Oud Fragrance', category: 'Fragrances', price: '$120.00', stock: 45, status: 'Active', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=100' },
-    { id: 2, name: 'Handcrafted Silk Abaya', category: 'Traditional Wear', price: '$245.00', stock: 12, status: 'Active', image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&q=80&w=100' },
-    { id: 3, name: 'Golden Calligraphy Plate', category: 'Home Decor', price: '$85.00', stock: 8, status: 'Low Stock', image: 'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?auto=format&fit=crop&q=80&w=100' },
-    { id: 4, name: 'Emerald Pendant', category: 'Jewelry', price: '$450.00', stock: 5, status: 'Active', image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=100' },
-    { id: 5, name: 'Moroccan Leather Slippers', category: 'Accessories', price: '$65.00', stock: 0, status: 'Out of Stock', image: 'https://images.unsplash.com/photo-1590673885247-aa7f709d90a1?auto=format&fit=crop&q=80&w=100' },
-  ];
+  const fetchProducts = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching products:', error);
+    } else if (data) {
+      setProducts(data);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        alert('Error deleting product: ' + error.message);
+      } else {
+        fetchProducts();
+      }
+    }
+  };
+
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      description: product.description || '',
+      price: product.price,
+      category: product.category || '',
+      image_url: product.image_url || '',
+      rating: product.rating || 5,
+      is_featured: product.is_featured || false
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const payload = {
+      ...formData,
+      price: parseFloat(formData.price)
+    };
+
+    let error;
+    if (editingProduct) {
+      const { error: editError } = await supabase
+        .from('products')
+        .update(payload)
+        .eq('id', editingProduct.id);
+      error = editError;
+    } else {
+      const { error: addError } = await supabase
+        .from('products')
+        .insert([payload]);
+      error = addError;
+    }
+
+    if (error) {
+      alert('Error saving product: ' + error.message);
+    } else {
+      setIsModalOpen(false);
+      setEditingProduct(null);
+      setFormData({ name: '', description: '', price: '', category: '', image_url: '', rating: 5, is_featured: false });
+      fetchProducts();
+    }
+    setLoading(false);
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(price || 0);
+  };
+
+  const filteredProducts = products.filter(p => 
+    (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.category || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="flex flex-col gap-8">
@@ -32,7 +135,14 @@ const AdminProducts = () => {
           <h1 className="text-3xl font-heading font-bold text-primary">Products Management</h1>
           <p className="text-gray-500 text-sm">Create, edit and manage your luxury collection.</p>
         </div>
-        <button className="btn btn-primary gap-2 py-3 px-6">
+        <button 
+          onClick={() => {
+            setEditingProduct(null);
+            setFormData({ name: '', description: '', price: '', category: '', image_url: '', rating: 5, is_featured: false });
+            setIsModalOpen(true);
+          }}
+          className="btn btn-primary gap-2 py-3 px-6"
+        >
           <Plus size={18} />
           Add New Product
         </button>
@@ -50,15 +160,6 @@ const AdminProducts = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <button className="flex items-center gap-2 px-4 py-2.5 border border-gray-100 rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50 transition-all">
-            <Filter size={16} />
-            Filter
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 border border-gray-100 rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50 transition-all">
-            Export
-          </button>
-        </div>
       </div>
 
       {/* Table */}
@@ -70,22 +171,26 @@ const AdminProducts = () => {
                 <th className="px-6 py-4">Product</th>
                 <th className="px-6 py-4">Category</th>
                 <th className="px-6 py-4">Price</th>
-                <th className="px-6 py-4">Stock</th>
-                <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {products.map((product) => (
+              {loading && products.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="px-6 py-20 text-center">
+                    <div className="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  </td>
+                </tr>
+              ) : filteredProducts.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-50 transition-colors group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-100">
-                        <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                        <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
                       </div>
                       <div>
                         <div className="text-sm font-bold text-primary">{product.name}</div>
-                        <div className="text-[10px] text-gray-400">ID: #PROD-{product.id}00</div>
+                        <div className="text-[10px] text-gray-400">ID: #PROD-{product.id}</div>
                       </div>
                     </div>
                   </td>
@@ -95,61 +200,188 @@ const AdminProducts = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm font-bold text-primary">
-                    {product.price}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${
-                        product.stock > 10 ? 'bg-green-500' :
-                        product.stock > 0 ? 'bg-yellow-500' : 'bg-red-500'
-                      }`}></div>
-                      <span className="text-sm text-gray-600">{product.stock} in stock</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${
-                      product.status === 'Active' ? 'bg-green-100 text-green-600' :
-                      product.status === 'Low Stock' ? 'bg-yellow-100 text-yellow-600' :
-                      'bg-red-100 text-red-600'
-                    }`}>
-                      {product.status}
-                    </span>
+                    {formatPrice(product.price)}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 text-gray-400 hover:text-primary transition-colors">
+                      <button 
+                        onClick={() => handleEdit(product)}
+                        className="p-2 text-gray-400 hover:text-primary transition-colors"
+                      >
                         <Edit size={16} />
                       </button>
-                      <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                      <button 
+                        onClick={() => handleDelete(product.id)}
+                        className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                      >
                         <Trash2 size={16} />
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-primary transition-colors">
-                        <MoreVertical size={16} />
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
+              {!loading && filteredProducts.length === 0 && (
+                <tr>
+                  <td colSpan="4" className="px-6 py-20 text-center text-gray-500">
+                    No products found. Start by adding your first luxury item.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-
-        {/* Pagination */}
-        <div className="p-6 border-t border-gray-50 flex items-center justify-between">
-          <p className="text-sm text-gray-500">Showing 5 of 120 products</p>
-          <div className="flex items-center gap-2">
-            <button className="p-2 border border-gray-100 rounded-lg text-gray-400 hover:bg-gray-50 disabled:opacity-50" disabled>
-              <ChevronLeft size={18} />
-            </button>
-            <button className="w-10 h-10 bg-primary text-white rounded-lg text-sm font-bold">1</button>
-            <button className="w-10 h-10 hover:bg-gray-50 rounded-lg text-sm font-bold text-gray-600">2</button>
-            <button className="w-10 h-10 hover:bg-gray-50 rounded-lg text-sm font-bold text-gray-600">3</button>
-            <button className="p-2 border border-gray-100 rounded-lg text-gray-400 hover:bg-gray-50">
-              <ChevronRight size={18} />
-            </button>
-          </div>
-        </div>
       </div>
+
+      {/* Product Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-primary/40 backdrop-blur-sm"
+            ></motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl relative z-10 overflow-hidden"
+            >
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h3 className="text-xl font-heading font-bold text-primary">
+                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                </h3>
+                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-all">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-6 max-h-[70vh] overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Product Name</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-100 px-4 py-3 rounded-xl outline-none focus:border-secondary transition-all"
+                      placeholder="e.g. Royal Oud Fragrance"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Category</label>
+                    <select 
+                      required
+                      value={formData.category}
+                      onChange={(e) => setFormData({...formData, category: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-100 px-4 py-3 rounded-xl outline-none focus:border-secondary transition-all"
+                    >
+                      <option value="">Select Category</option>
+                      <option value="Fragrances">Fragrances</option>
+                      <option value="Traditional Wear">Traditional Wear</option>
+                      <option value="Jewelry">Jewelry</option>
+                      <option value="Home Decor">Home Decor</option>
+                      <option value="Accessories">Accessories</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Price (USD)</label>
+                    <input 
+                      type="number" 
+                      required
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) => setFormData({...formData, price: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-100 px-4 py-3 rounded-xl outline-none focus:border-secondary transition-all"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Rating (1-5)</label>
+                    <input 
+                      type="number" 
+                      required
+                      min="1"
+                      max="5"
+                      value={formData.rating}
+                      onChange={(e) => setFormData({...formData, rating: parseInt(e.target.value)})}
+                      className="w-full bg-gray-50 border border-gray-100 px-4 py-3 rounded-xl outline-none focus:border-secondary transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Image URL</label>
+                  <div className="relative">
+                    <ImageIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input 
+                      type="url" 
+                      required
+                      value={formData.image_url}
+                      onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-100 pl-12 pr-4 py-3 rounded-xl outline-none focus:border-secondary transition-all"
+                      placeholder="https://images.unsplash.com/..."
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Description</label>
+                  <textarea 
+                    rows="4"
+                    value={formData.description}
+                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    className="w-full bg-gray-50 border border-gray-100 px-4 py-3 rounded-xl outline-none focus:border-secondary transition-all resize-none"
+                    placeholder="Describe the heritage and luxury of this item..."
+                  ></textarea>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <input 
+                    type="checkbox" 
+                    id="is_featured"
+                    checked={formData.is_featured}
+                    onChange={(e) => setFormData({...formData, is_featured: e.target.checked})}
+                    className="w-5 h-5 accent-secondary"
+                  />
+                  <label htmlFor="is_featured" className="text-sm font-bold text-primary cursor-pointer">Featured Product</label>
+                </div>
+
+                <div className="flex items-center justify-end gap-4 pt-4 border-t border-gray-50 mt-4">
+                  <button 
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-6 py-3 text-sm font-bold text-gray-500 hover:text-primary transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={loading}
+                    className="btn btn-primary px-10 py-3 gap-2"
+                  >
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    ) : (
+                      <>
+                        <Upload size={18} />
+                        {editingProduct ? 'Update Product' : 'Create Product'}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
