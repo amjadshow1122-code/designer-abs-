@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, 
@@ -13,21 +13,45 @@ import {
   ArrowDownRight,
   Plus
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const AdminDashboard = () => {
-  const stats = [
-    { title: 'Total Revenue', value: '$124,560', change: '+12.5%', isUp: true, icon: BarChart3 },
-    { title: 'Total Orders', value: '1,245', change: '+8.2%', isUp: true, icon: ShoppingCart },
-    { title: 'New Customers', value: '456', change: '-3.1%', isUp: false, icon: Users },
-    { title: 'Pending Items', value: '18', change: '0%', isUp: true, icon: Package },
-  ];
+  const [stats, setStats] = useState([
+    { title: 'Total Revenue', value: '$0', change: '0%', isUp: true, icon: BarChart3 },
+    { title: 'Total Orders', value: '0', change: '0%', isUp: true, icon: ShoppingCart },
+    { title: 'New Customers', value: '0', change: '0%', isUp: true, icon: Users },
+    { title: 'Pending Items', value: '0', change: '0%', isUp: true, icon: Package },
+  ]);
 
-  const recentOrders = [
-    { id: '#12450', customer: 'Ahmed Hassan', date: 'Oct 12, 2023', total: '$120.00', status: 'Delivered' },
-    { id: '#12451', customer: 'Fatima Zohra', date: 'Oct 12, 2023', total: '$245.00', status: 'Processing' },
-    { id: '#12452', customer: 'Omar Khalid', date: 'Oct 11, 2023', total: '$85.00', status: 'Shipped' },
-    { id: '#12453', customer: 'Laila Amin', date: 'Oct 11, 2023', total: '$450.00', status: 'Pending' },
-  ];
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      
+      // Fetch Products count
+      const { count: productCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true });
+
+      // Fetch Customers count
+      const { count: customerCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      setStats([
+        { title: 'Total Revenue', value: '$0', change: '0%', isUp: true, icon: BarChart3 },
+        { title: 'Total Orders', value: '0', change: '0%', isUp: true, icon: ShoppingCart },
+        { title: 'New Customers', value: customerCount || 0, change: '+100%', isUp: true, icon: Users },
+        { title: 'Products In Stock', value: productCount || 0, change: '+100%', isUp: true, icon: Package },
+      ]);
+
+      setLoading(false);
+    };
+
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className="flex flex-col gap-8">
@@ -76,24 +100,32 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-bold text-primary">{order.id}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{order.customer}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{order.date}</td>
-                    <td className="px-6 py-4 text-sm font-bold text-primary">{order.total}</td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${
-                        order.status === 'Delivered' ? 'bg-green-100 text-green-600' :
-                        order.status === 'Processing' ? 'bg-blue-100 text-blue-600' :
-                        order.status === 'Shipped' ? 'bg-yellow-100 text-yellow-600' :
-                        'bg-gray-100 text-gray-600'
-                      }`}>
-                        {order.status}
-                      </span>
+                {recentOrders.length > 0 ? (
+                  recentOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 text-sm font-bold text-primary">{order.id}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{order.customer}</td>
+                      <td className="px-6 py-4 text-sm text-gray-500">{order.date}</td>
+                      <td className="px-6 py-4 text-sm font-bold text-primary">{order.total}</td>
+                      <td className="px-6 py-4">
+                        <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${
+                          order.status === 'Delivered' ? 'bg-green-100 text-green-600' :
+                          order.status === 'Processing' ? 'bg-blue-100 text-blue-600' :
+                          order.status === 'Shipped' ? 'bg-yellow-100 text-yellow-600' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
+                          {order.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-12 text-center text-gray-500 italic text-sm">
+                      No recent orders to display.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -110,31 +142,16 @@ const AdminDashboard = () => {
           <div className="p-6 flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-600">Traditional Wear</span>
-                <span className="font-bold">45%</span>
+                <span className="text-gray-600">Product Categories</span>
+                <span className="font-bold">0%</span>
               </div>
               <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-primary" style={{ width: '45%' }}></div>
+                <div className="h-full bg-primary" style={{ width: '0%' }}></div>
               </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-600">Fragrances</span>
-                <span className="font-bold">28%</span>
-              </div>
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-secondary" style={{ width: '28%' }}></div>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-600">Home Decor</span>
-                <span className="font-bold">15%</span>
-              </div>
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-gray-400" style={{ width: '15%' }}></div>
-              </div>
-            </div>
+            <p className="text-xs text-gray-400 italic text-center py-4">
+              Add products to see category distribution.
+            </p>
             <button className="btn btn-secondary w-full py-3 mt-4">
               Generate Inventory Report
             </button>

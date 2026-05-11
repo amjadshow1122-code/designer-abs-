@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Search, 
@@ -14,17 +14,17 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const AdminOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const orders = [
-    { id: '#ORD-12450', customer: 'Ahmed Hassan', email: 'ahmed@example.com', date: 'Oct 12, 2023', total: '$145.00', status: 'In Transit', items: 2 },
-    { id: '#ORD-12451', customer: 'Fatima Zohra', email: 'fatima@example.com', date: 'Oct 12, 2023', total: '$245.00', status: 'Processing', items: 1 },
-    { id: '#ORD-12452', customer: 'Omar Khalid', email: 'omar@example.com', date: 'Oct 11, 2023', total: '$85.00', status: 'Delivered', items: 1 },
-    { id: '#ORD-12453', customer: 'Laila Amin', email: 'laila@example.com', date: 'Oct 11, 2023', total: '$450.00', status: 'Pending', items: 3 },
-    { id: '#ORD-12454', customer: 'Zaid Bakri', email: 'zaid@example.com', date: 'Oct 10, 2023', total: '$1,200.00', status: 'Delivered', items: 4 },
-  ];
+  useEffect(() => {
+    // In the future, fetch orders from public.orders
+    setLoading(false);
+  }, []);
 
   const getStatusStyles = (status) => {
     switch (status) {
@@ -100,44 +100,52 @@ const AdminOrders = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {orders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-bold text-primary">{order.id}</span>
-                      <span className="text-[10px] text-gray-400">{order.date} • {order.items} Items</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-bold text-primary">{order.customer}</span>
-                      <span className="text-[10px] text-gray-400">{order.email}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5 w-fit ${getStatusStyles(order.status)}`}>
-                      {getStatusIcon(order.status)}
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>{order.total}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 text-gray-400 hover:text-primary transition-colors" title="View Details">
-                        <Eye size={18} />
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-primary transition-colors" title="Print Invoice">
-                        <Printer size={18} />
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-secondary transition-colors" title="Manage Order">
-                        <MoreVertical size={18} />
-                      </button>
-                    </div>
+              {orders.length > 0 ? (
+                orders.map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-bold text-primary">{order.id}</span>
+                        <span className="text-[10px] text-gray-400">{order.date} • {order.items} Items</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-bold text-primary">{order.customer}</span>
+                        <span className="text-[10px] text-gray-400">{order.email}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5 w-fit ${getStatusStyles(order.status)}`}>
+                        {getStatusIcon(order.status)}
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>{order.total}</span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-2 text-gray-400 hover:text-primary transition-colors" title="View Details">
+                          <Eye size={18} />
+                        </button>
+                        <button className="p-2 text-gray-400 hover:text-primary transition-colors" title="Print Invoice">
+                          <Printer size={18} />
+                        </button>
+                        <button className="p-2 text-gray-400 hover:text-secondary transition-colors" title="Manage Order">
+                          <MoreVertical size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="px-6 py-20 text-center text-gray-500 italic text-sm">
+                    No orders found in the system.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -145,13 +153,13 @@ const AdminOrders = () => {
         {/* Pagination */}
         <div className="p-6 border-t border-gray-50 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">Page 1 of 24</span>
+            <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">Page 1 of 1</span>
           </div>
           <div className="flex items-center gap-2">
             <button className="p-2 border border-gray-100 rounded-lg text-gray-400 hover:bg-gray-50 disabled:opacity-50" disabled>
               <ChevronLeft size={18} />
             </button>
-            <button className="p-2 border border-gray-100 rounded-lg text-gray-400 hover:bg-gray-50">
+            <button className="p-2 border border-gray-100 rounded-lg text-gray-400 hover:bg-gray-50 disabled:opacity-50" disabled>
               <ChevronRight size={18} />
             </button>
           </div>

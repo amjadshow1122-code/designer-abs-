@@ -10,10 +10,10 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   const categories = [
-    { name: 'Traditional Wear', image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&q=80&w=800', count: '120+ Items' },
-    { name: 'Home Decor', image: 'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?auto=format&fit=crop&q=80&w=800', count: '85+ Items' },
-    { name: 'Fragrances', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800', count: '45+ Items' },
-    { name: 'Jewelry', image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=800', count: '60+ Items' },
+    { name: 'Traditional Wear', image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&q=80&w=800' },
+    { name: 'Home Decor', image: 'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?auto=format&fit=crop&q=80&w=800' },
+    { name: 'Fragrances', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800' },
+    { name: 'Jewelry', image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=800' },
   ];
 
   useEffect(() => {
@@ -139,7 +139,6 @@ const Home = () => {
                 <img src={cat.image} alt={cat.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                 <div className="absolute bottom-0 left-0 p-8 w-full">
-                  <span className="text-secondary text-xs font-bold uppercase tracking-widest mb-2 block" style={{ color: 'var(--color-secondary)' }}>{cat.count}</span>
                   <h3 className="text-white text-2xl mb-4">{cat.name}</h3>
                   <div className="flex items-center text-white text-sm font-semibold group-hover:gap-3 transition-all duration-300">
                     Explore <ArrowRight size={16} className="ml-2" />

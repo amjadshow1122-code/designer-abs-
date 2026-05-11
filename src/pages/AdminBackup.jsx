@@ -20,11 +20,7 @@ import {
 const AdminBackup = () => {
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [backups, setBackups] = useState([
-    { id: 'BK-9824', date: 'Oct 12, 2023 14:30', size: '1.2 GB', type: 'System Full', status: 'Healthy' },
-    { id: 'BK-9820', date: 'Oct 05, 2023 03:00', size: '1.1 GB', type: 'Automatic', status: 'Healthy' },
-    { id: 'BK-9750', date: 'Sep 28, 2023 03:00', size: '1.1 GB', type: 'Automatic', status: 'Healthy' },
-  ]);
+  const [backups, setBackups] = useState([]);
 
   const handleCreateBackup = () => {
     setIsBackingUp(true);
@@ -32,7 +28,7 @@ const AdminBackup = () => {
       const newBackup = {
         id: `BK-${Math.floor(Math.random() * 10000)}`,
         date: new Date().toLocaleString(),
-        size: '1.2 GB',
+        size: '1.2 MB',
         type: 'Manual',
         status: 'Healthy'
       };
@@ -73,13 +69,13 @@ const AdminBackup = () => {
               </div>
               <div>
                 <h3 className="font-bold text-primary">System Integrity</h3>
-                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Everything is Secure</p>
+                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Database Live</p>
               </div>
             </div>
             <div className="flex flex-col gap-4 border-t border-gray-50 pt-6">
               <div className="flex justify-between text-xs">
                 <span className="text-gray-400 font-bold uppercase tracking-widest">Last Backup</span>
-                <span className="text-primary font-bold">{backups[0].date}</span>
+                <span className="text-primary font-bold">{backups.length > 0 ? backups[0].date : 'Never'}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-400 font-bold uppercase tracking-widest">Total Backups</span>
@@ -87,17 +83,17 @@ const AdminBackup = () => {
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-400 font-bold uppercase tracking-widest">Storage Used</span>
-                <span className="text-primary font-bold">3.4 GB / 50 GB</span>
+                <span className="text-primary font-bold">0 GB / 50 GB</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-primary rounded-xl p-8 text-white relative overflow-hidden" style={{ backgroundColor: 'var(--color-primary)' }}>
+          <div className="bg-primary rounded-xl p-8 text-white relative overflow-hidden">
             <div className="relative z-10 flex flex-col gap-4">
               <Cloud className="text-secondary" />
               <h3 className="font-bold text-lg">Cloud Sync Active</h3>
               <p className="text-xs text-gray-300 leading-relaxed uppercase tracking-widest font-bold">
-                Your backups are automatically synchronized with the secondary heritage vault in Dubai.
+                Your backups are automatically synchronized with the secondary heritage vault.
               </p>
             </div>
             <div className="absolute top-[-20%] right-[-20%] w-40 h-40 bg-white/5 rounded-full"></div>
@@ -129,7 +125,7 @@ const AdminBackup = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {backups.map((backup, idx) => (
+                  {backups.length > 0 ? backups.map((backup, idx) => (
                     <motion.tr 
                       key={backup.id}
                       initial={{ opacity: 0, x: -10 }}
@@ -166,7 +162,13 @@ const AdminBackup = () => {
                         </div>
                       </td>
                     </motion.tr>
-                  ))}
+                  )) : (
+                    <tr>
+                      <td colSpan="4" className="px-6 py-20 text-center text-gray-400 italic">
+                        No backups found. Create your first backup to secure your data.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -259,7 +261,7 @@ const AdminBackup = () => {
                 <div className="p-4 bg-secondary/5 rounded-xl border border-secondary/10 flex items-center gap-4">
                   <Server className="text-secondary" size={20} />
                   <p className="text-[10px] font-bold text-secondary uppercase tracking-widest leading-relaxed">
-                    Backup storage is currently healthy. Next automated run scheduled for Tomorrow at 03:00 AM GST.
+                    Backup storage is currently healthy. Next automated run scheduled for Tomorrow at 03:00 AM.
                   </p>
                 </div>
               </div>

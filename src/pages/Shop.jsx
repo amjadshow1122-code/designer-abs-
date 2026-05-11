@@ -162,9 +162,12 @@ const Shop = () => {
                 >
                   <Link to={`/product/${product.id}`} className={`relative overflow-hidden bg-gray-50 block ${view === 'list' ? 'w-full md:w-1/3' : 'aspect-[4/5]'}`}>
                     <img src={product.image_url} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <div className="absolute top-4 left-4 bg-secondary text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-sm" style={{ backgroundColor: 'var(--color-secondary)' }}>
-                      New
-                    </div>
+                    {/* New Label (Optional) */}
+                    {new Date(product.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
+                      <div className="absolute top-4 left-4 bg-secondary text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-sm" style={{ backgroundColor: 'var(--color-secondary)' }}>
+                        New
+                      </div>
+                    )}
                   </Link>
                   
                   <div className="p-6 flex flex-col gap-3 flex-grow">
