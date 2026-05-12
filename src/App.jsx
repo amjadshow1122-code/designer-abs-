@@ -18,6 +18,7 @@ import UserWishlist from './pages/UserWishlist';
 import UserSettings from './pages/UserSettings';
 import UserAddresses from './pages/UserAddresses';
 import UserNotifications from './pages/UserNotifications';
+import ForgotPassword from './pages/ForgotPassword';
 import AdminLogin from './pages/AdminLogin';
 import AdminLayout from './components/AdminLayout';
 import AdminOrders from './pages/AdminOrders';
@@ -96,6 +97,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             
             {/* User Panel Routes */}
             <Route path="/profile" element={<UserPanel><UserDashboard /></UserPanel>} />

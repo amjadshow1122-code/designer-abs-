@@ -34,7 +34,9 @@ const UserPanel = ({ children }) => {
           .single();
         
         if (profile?.is_admin) {
-          navigate('/admin');
+          // Strictly prevent cross-access. Admins should not be here.
+          await supabase.auth.signOut();
+          navigate('/login', { state: { error: 'Invalid login credentials' } });
           return;
         }
 

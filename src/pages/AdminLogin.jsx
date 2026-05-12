@@ -35,7 +35,7 @@ const AdminLogin = () => {
       
       if (!profileData.is_admin) {
         await supabase.auth.signOut();
-        throw new Error('Access denied. Administrator privileges required.');
+        throw new Error('Invalid login credentials');
       }
 
       navigate('/admin');

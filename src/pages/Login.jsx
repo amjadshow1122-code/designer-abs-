@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Mail, Lock, User, ArrowRight, Globe, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
@@ -12,6 +12,13 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.error) {
+      setError(location.state.error);
+    }
+  }, [location]);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -26,7 +33,7 @@ const Login = () => {
         });
         if (authError) throw authError;
 
-        // Security Layer: Prevent Admins from logging into User Profile
+        // Security Layer: Strictly block Admins from logging into the User side
         const { data: profileData } = await supabase
           .from('profiles')
           .select('is_admin')
@@ -34,8 +41,9 @@ const Login = () => {
           .single();
 
         if (profileData?.is_admin) {
+          // IMPORTANT: Sign out immediately to destroy the session
           await supabase.auth.signOut();
-          throw new Error('This account is an Administrator. Please use the Admin Login Terminal.');
+          throw new Error('Invalid login credentials');
         }
 
         navigate('/profile');
@@ -157,7 +165,7 @@ const Login = () => {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold uppercase tracking-widest text-gray-400">Password</label>
                 {isLogin && (
-                  <button type="button" className="text-[10px] font-bold text-secondary uppercase tracking-widest hover:underline">Forgot Password?</button>
+                  <Link to="/forgot-password" size="sm" className="text-[10px] font-bold text-secondary uppercase tracking-widest hover:underline">Forgot Password?</Link>
                 )}
               </div>
               <div className="relative">
@@ -183,25 +191,7 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-100"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase tracking-widest">
-              <span className="bg-white px-4 text-gray-400 font-bold">Or continue with</span>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center gap-3 py-3 border border-gray-100 rounded-sm hover:bg-gray-50 transition-all text-sm font-bold text-primary">
-              <Globe size={18} />
-              Google
-            </button>
-            <button className="flex items-center justify-center gap-3 py-3 border border-gray-100 rounded-sm hover:bg-gray-50 transition-all text-sm font-bold text-primary">
-              <Share2 size={18} />
-              Other
-            </button>
-          </div>
 
           <div className="text-center mt-4">
             <p className="text-sm text-gray-500">
