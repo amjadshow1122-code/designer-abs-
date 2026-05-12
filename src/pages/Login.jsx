@@ -20,11 +20,24 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
+        if (authError) throw authError;
+
+        // Security Layer: Prevent Admins from logging into User Profile
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', authData.user.id)
+          .single();
+
+        if (profileData?.is_admin) {
+          await supabase.auth.signOut();
+          throw new Error('This account is an Administrator. Please use the Admin Login Terminal.');
+        }
+
         navigate('/profile');
       } else {
         const { data, error } = await supabase.auth.signUp({

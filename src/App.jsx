@@ -16,6 +16,8 @@ import UserDashboard from './pages/UserDashboard';
 import UserOrders from './pages/UserOrders';
 import UserWishlist from './pages/UserWishlist';
 import UserSettings from './pages/UserSettings';
+import UserAddresses from './pages/UserAddresses';
+import UserNotifications from './pages/UserNotifications';
 import AdminLogin from './pages/AdminLogin';
 import AdminLayout from './components/AdminLayout';
 import AdminOrders from './pages/AdminOrders';
@@ -100,8 +102,8 @@ function App() {
             <Route path="/profile/orders" element={<UserPanel><UserOrders /></UserPanel>} />
             <Route path="/profile/wishlist" element={<UserPanel><UserWishlist /></UserPanel>} />
             <Route path="/profile/settings" element={<UserPanel><UserSettings /></UserPanel>} />
-            <Route path="/profile/addresses" element={<UserPanel><div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm text-center"><h2 className="text-xl font-heading font-bold mb-4">My Addresses</h2><p className="text-gray-500">Manage your shipping and billing addresses.</p></div></UserPanel>} />
-            <Route path="/profile/notifications" element={<UserPanel><div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm text-center"><h2 className="text-xl font-heading font-bold mb-4">Notifications</h2><p className="text-gray-500">Stay updated on your orders and heritage finds.</p></div></UserPanel>} />
+            <Route path="/profile/addresses" element={<UserPanel><UserAddresses /></UserPanel>} />
+            <Route path="/profile/notifications" element={<UserPanel><UserNotifications /></UserPanel>} />
 
             <Route path="/admin/login" element={<AdminLogin />} />
             
