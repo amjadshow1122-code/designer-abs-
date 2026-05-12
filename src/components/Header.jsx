@@ -7,6 +7,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [session, setSession] = useState(null);
+  const [config, setConfig] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -26,13 +27,16 @@ const Header = () => {
         setSession(session);
       });
       
-      // Fetch dynamic menu
+      // Fetch dynamic menu and config
       supabase.from('site_settings').select('header_config').eq('id', 1).single().then(({ data }) => {
-        if (data?.header_config?.nav_links) {
-          setNavLinks(data.header_config.nav_links.map(link => ({
-            name: link.label,
-            path: link.url
-          })));
+        if (data?.header_config) {
+          setConfig(data.header_config);
+          if (data.header_config.nav_links) {
+            setNavLinks(data.header_config.nav_links.map(link => ({
+              name: link.label,
+              path: link.url
+            })));
+          }
         }
       });
     });
@@ -40,23 +44,27 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const [navLinks, setNavLinks] = useState([
-    { name: 'Home', path: '/' },
-    { name: 'Shop', path: '/shop' },
-    { name: 'Collections', path: '/collections' },
-    { name: 'About', path: '/about' },
-  ]);
+  const [navLinks, setNavLinks] = useState([]);
 
   return (
     <header 
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-        isScrolled ? 'bg-white shadow-md py-3' : 'bg-transparent py-6'
+        isScrolled ? 'bg-white shadow-md' : 'bg-transparent'
       }`}
     >
-      <div className="container flex items-center justify-between">
+      {/* Top Bar Announcement */}
+      {config?.top_bar && !isScrolled && (
+        <div className="w-full bg-primary text-white text-xs text-center py-2 font-body font-bold uppercase tracking-widest" style={{ backgroundColor: 'var(--color-primary)' }}>
+          {config.top_bar}
+        </div>
+      )}
+
+      <div className={`container flex items-center justify-between transition-all duration-500 ${isScrolled ? 'py-3' : 'py-6'}`}>
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <img src="/ARAB_FINDS-removebg-preview.png" alt="Arab Finds" className="h-12 w-auto object-contain" />
+          {config?.logo ? (
+            <img src={config.logo} alt="Brand Logo" className="h-12 w-auto object-contain" />
+          ) : null}
         </Link>
 
         {/* Desktop Nav */}

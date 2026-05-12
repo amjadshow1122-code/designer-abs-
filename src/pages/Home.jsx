@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useCurrency } from '../lib/useCurrency';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -70,12 +71,7 @@ const Home = () => {
     }
   }, [content.hero]);
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
-  };
+  const { formatPrice } = useCurrency();
 
   if (loading) {
     return (

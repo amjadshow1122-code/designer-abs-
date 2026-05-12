@@ -10,13 +10,15 @@ import {
   CheckCircle2,
   Truck
 } from 'lucide-react';
+import { useCurrency } from '../lib/useCurrency';
 
 const UserOrders = () => {
+  const { formatPrice } = useCurrency();
   const orders = [
     { 
       id: '#AF-98245', 
       date: 'Oct 10, 2023', 
-      total: '$145.00', 
+      total: 145.00, 
       status: 'In Transit', 
       items: 2,
       image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=100'
@@ -24,7 +26,7 @@ const UserOrders = () => {
     { 
       id: '#AF-98120', 
       date: 'Sep 25, 2023', 
-      total: '$320.00', 
+      total: 320.00, 
       status: 'Delivered', 
       items: 1,
       image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&q=80&w=100'
@@ -32,7 +34,7 @@ const UserOrders = () => {
     { 
       id: '#AF-97850', 
       date: 'Aug 12, 2023', 
-      total: '$1,200.00', 
+      total: 1200.00, 
       status: 'Delivered', 
       items: 4,
       image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=100'
@@ -95,7 +97,7 @@ const UserOrders = () => {
                     </span>
                   </div>
                   <span className="text-sm text-gray-400">Ordered on {order.date} • {order.items} {order.items === 1 ? 'Item' : 'Items'}</span>
-                  <span className="text-lg font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>{order.total}</span>
+                  <span className="text-lg font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>{formatPrice(order.total)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-3">

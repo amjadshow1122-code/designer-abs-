@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Filter, Grid, List, ChevronDown, Search, Star, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
+import { useCurrency } from '../lib/useCurrency';
 
 const Shop = () => {
   const [view, setView] = useState('grid');
@@ -43,12 +44,7 @@ const Shop = () => {
     fetchData();
   }, []);
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
-  };
+  const { formatPrice } = useCurrency();
 
   const filteredProducts = activeCategory === 'All' 
     ? products 
@@ -136,8 +132,8 @@ const Shop = () => {
               <div className="flex flex-col gap-4">
                 <input type="range" className="accent-secondary w-full" />
                 <div className="flex items-center justify-between text-xs font-bold">
-                  <span>$0</span>
-                  <span>$1,000+</span>
+                  <span>{formatPrice(0)}</span>
+                  <span>{formatPrice(1000)}+</span>
                 </div>
               </div>
             </div>

@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, Heart, Share2, ShoppingCart, ShieldCheck, Truck, RotateCcw, ChevronRight, Minus, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
+import { useCurrency } from '../lib/useCurrency';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -40,12 +41,7 @@ const ProductDetail = () => {
     }, 800);
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
-  };
+  const { formatPrice } = useCurrency();
 
   if (loading) {
     return (

@@ -15,32 +15,10 @@ const Footer = () => {
     });
   }, []);
 
-  const description = config?.description || 'Discover the fusion of cultural heritage and contemporary luxury. We curate the finest finds from across the Arab world, bringing prestige and quality to your doorstep.';
-  const copyright = config?.copyright || `© ${new Date().getFullYear()} ARAB FINDS. All Rights Reserved.`;
+  const description = config?.description || '';
+  const copyright = config?.copyright || '';
   
-  // Default columns
-  const defaultColumns = [
-    {
-      title: 'Quick Links',
-      links: [
-        { label: 'Shop All', url: '/shop' },
-        { label: 'Collections', url: '/collections' },
-        { label: 'Our Story', url: '/about' },
-        { label: 'Contact Us', url: '/contact' }
-      ]
-    },
-    {
-      title: 'Customer Service',
-      links: [
-        { label: 'Shipping Policy', url: '/shipping' },
-        { label: 'Returns & Exchanges', url: '/returns' },
-        { label: 'FAQs', url: '/faq' },
-        { label: 'Privacy Policy', url: '/privacy' }
-      ]
-    }
-  ];
-
-  const columns = config?.columns || defaultColumns;
+  const columns = config?.columns || [];
 
   return (
     <footer className="bg-primary text-white pt-20 pb-10" style={{ backgroundColor: 'var(--color-primary)' }}>
@@ -51,9 +29,7 @@ const Footer = () => {
             <Link to="/" className="flex items-center gap-2">
               {config?.logo ? (
                 <img src={config.logo} alt="Brand Logo" className="h-10 w-auto object-contain" />
-              ) : (
-                <img src="/ARAB_FINDS-removebg-preview.png" alt="Arab Finds" className="h-10 w-auto object-contain brightness-0 invert" />
-              )}
+              ) : null}
             </Link>
             <p className="text-gray-400 font-body text-sm leading-relaxed">
               {description}
@@ -89,15 +65,15 @@ const Footer = () => {
             <ul className="flex flex-col gap-4">
               <li className="flex items-start gap-3">
                 <MapPin size={18} className="text-secondary flex-shrink-0" style={{ color: 'var(--color-secondary)' }} />
-                <span className="text-gray-400 text-sm">123 Heritage Lane, Downtown Dubai, UAE</span>
+                <span className="text-gray-400 text-sm">{config?.contact_info?.address || ''}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={18} className="text-secondary flex-shrink-0" style={{ color: 'var(--color-secondary)' }} />
-                <span className="text-gray-400 text-sm">+971 4 123 4567</span>
+                <span className="text-gray-400 text-sm">{config?.contact_info?.phone || ''}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={18} className="text-secondary flex-shrink-0" style={{ color: 'var(--color-secondary)' }} />
-                <span className="text-gray-400 text-sm">support@arabfinds.com</span>
+                <span className="text-gray-400 text-sm">{config?.contact_info?.email || ''}</span>
               </li>
             </ul>
           </div>

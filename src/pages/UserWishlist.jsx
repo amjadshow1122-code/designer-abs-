@@ -2,13 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingCart, Trash2, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useCurrency } from '../lib/useCurrency';
 
 const UserWishlist = () => {
+  const { formatPrice } = useCurrency();
   const wishlist = [
     { 
       id: 1, 
       name: 'Royal Oud Fragrance', 
-      price: '$120.00', 
+      price: 120.00, 
       category: 'Fragrances', 
       image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=200',
       rating: 5
@@ -16,7 +18,7 @@ const UserWishlist = () => {
     { 
       id: 3, 
       name: 'Golden Calligraphy Plate', 
-      price: '$85.00', 
+      price: 85.00, 
       category: 'Home Decor', 
       image: 'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?auto=format&fit=crop&q=80&w=200',
       rating: 4.9
@@ -52,7 +54,7 @@ const UserWishlist = () => {
                   <Star key={i} size={10} fill={i < Math.floor(item.rating) ? "var(--color-secondary)" : "none"} className={i < Math.floor(item.rating) ? "text-secondary" : "text-gray-200"} />
                 ))}
               </div>
-              <p className="text-lg font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>{item.price}</p>
+              <p className="text-lg font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>{formatPrice(item.price)}</p>
             </div>
             <div className="flex flex-col justify-between items-end">
               <button className="p-2 text-gray-300 hover:text-red-500 transition-colors">

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { optimizeImage } from '../lib/imageOptimization';
+import { useCurrency } from '../lib/useCurrency';
 
 const AdminProducts = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -187,12 +188,7 @@ const AdminProducts = () => {
     setLoading(false);
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price || 0);
-  };
+  const { formatPrice } = useCurrency();
 
   const filteredProducts = products.filter(p => 
     (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -17,8 +17,10 @@ import {
   FileText
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useCurrency } from '../lib/useCurrency';
 
 const AdminAnalytics = () => {
+  const { formatPrice } = useCurrency();
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('lifetime'); // '7d', '30d', 'lifetime'
   const [stats, setStats] = useState({
@@ -97,12 +99,12 @@ const AdminAnalytics = () => {
   const handleDownloadReport = () => {
     const csvContent = "data:text/csv;charset=utf-8," 
       + "Metric,Value\n"
-      + `Total Revenue,$${stats.revenue}\n`
+      + `Total Revenue,"${formatPrice(stats.revenue)}"\n`
       + `Total Orders,${stats.orders}\n`
       + `Total Customers,${stats.customers}\n`
-      + `Average Order Value,$${stats.avgOrder.toFixed(2)}\n\n`
+      + `Average Order Value,"${formatPrice(stats.avgOrder)}"\n\n`
       + "Top Products,Sales,Revenue\n"
-      + topProducts.map(p => `${p.name},${p.sales},$${p.revenue.toFixed(2)}`).join("\n");
+      + topProducts.map(p => `${p.name},${p.sales},"${formatPrice(p.revenue)}"`).join("\n");
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -114,10 +116,10 @@ const AdminAnalytics = () => {
   };
 
   const kpis = [
-    { title: 'Gross Revenue', value: `$${stats.revenue.toLocaleString()}`, change: '+12%', isUp: true, icon: Wallet },
+    { title: 'Gross Revenue', value: formatPrice(stats.revenue), change: '+12%', isUp: true, icon: Wallet },
     { title: 'Total Orders', value: stats.orders.toString(), change: '+5%', isUp: true, icon: ShoppingBag },
     { title: 'Active Customers', value: stats.customers.toString(), change: '+8%', isUp: true, icon: Users },
-    { title: 'Avg. Order Value', value: `$${stats.avgOrder.toFixed(2)}`, change: '+3%', isUp: true, icon: TrendingUp },
+    { title: 'Avg. Order Value', value: formatPrice(stats.avgOrder), change: '+3%', isUp: true, icon: TrendingUp },
   ];
 
   return (
@@ -233,7 +235,7 @@ const AdminAnalytics = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-secondary">${product.revenue.toLocaleString()}</p>
+                    <p className="text-sm font-bold text-secondary">{formatPrice(product.revenue)}</p>
                     <p className="text-[10px] text-green-500 font-bold">+15%</p>
                   </div>
                 </div>

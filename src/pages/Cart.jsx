@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Truck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCurrency } from '../lib/useCurrency';
 
 const Cart = () => {
+  const { formatPrice } = useCurrency();
   // Mock cart data
   const [cartItems, setCartItems] = useState([
     {
@@ -83,7 +85,7 @@ const Cart = () => {
                   <div className="flex-grow flex flex-col gap-1 text-center sm:text-left">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-secondary" style={{ color: 'var(--color-secondary)' }}>{item.category}</span>
                     <h3 className="text-lg font-heading font-bold text-primary">{item.name}</h3>
-                    <p className="text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>${item.price.toFixed(2)}</p>
+                    <p className="text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>{formatPrice(item.price)}</p>
                   </div>
 
                   <div className="flex items-center border border-gray-100 rounded-lg">
@@ -103,7 +105,7 @@ const Cart = () => {
                   </div>
 
                   <div className="text-right min-w-[100px]">
-                    <p className="text-lg font-bold text-primary">${(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="text-lg font-bold text-primary">{formatPrice(item.price * item.quantity)}</p>
                     <button 
                       onClick={() => removeItem(item.id)}
                       className="text-xs font-bold text-red-400 hover:text-red-600 transition-colors uppercase tracking-widest mt-2"
@@ -130,21 +132,21 @@ const Cart = () => {
               <div className="flex flex-col gap-4 text-sm">
                 <div className="flex justify-between items-center text-gray-500">
                   <span>Subtotal</span>
-                  <span className="font-bold text-primary">${subtotal.toFixed(2)}</span>
+                  <span className="font-bold text-primary">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between items-center text-gray-500">
                   <span>Shipping</span>
-                  <span className="font-bold text-primary">{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
+                  <span className="font-bold text-primary">{shipping === 0 ? 'FREE' : formatPrice(shipping)}</span>
                 </div>
                 <div className="flex justify-between items-center text-gray-500">
                   <span>Estimated Tax</span>
-                  <span className="font-bold text-primary">$0.00</span>
+                  <span className="font-bold text-primary">{formatPrice(0)}</span>
                 </div>
               </div>
 
               <div className="border-t border-gray-100 pt-6 flex justify-between items-center">
                 <span className="text-lg font-bold text-primary uppercase tracking-widest">Total</span>
-                <span className="text-2xl font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>${total.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>{formatPrice(total)}</span>
               </div>
 
               <Link to="/checkout" className="btn btn-primary w-full py-4 gap-3 text-base shadow-lg shadow-primary/10 flex items-center justify-center">
@@ -155,7 +157,7 @@ const Cart = () => {
               <div className="flex flex-col gap-4 mt-2">
                 <div className="flex items-center gap-3 text-xs text-gray-500">
                   <Truck size={16} className="text-secondary" style={{ color: 'var(--color-secondary)' }} />
-                  <span>Free shipping on orders over $500</span>
+                  <span>Free shipping on orders over {formatPrice(500)}</span>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-gray-500">
                   <ShieldCheck size={16} className="text-secondary" style={{ color: 'var(--color-secondary)' }} />

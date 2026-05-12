@@ -16,8 +16,10 @@ import {
   Loader2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useCurrency } from '../lib/useCurrency';
 
 const AdminOrders = () => {
+  const { formatPrice } = useCurrency();
   const [searchTerm, setSearchTerm] = useState('');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -168,7 +170,7 @@ const AdminOrders = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>${order.total_amount}</span>
+                      <span className="text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>{formatPrice(order.total_amount)}</span>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

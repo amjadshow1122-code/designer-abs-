@@ -11,8 +11,10 @@ import {
   Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCurrency } from '../lib/useCurrency';
 
 const Checkout = () => {
+  const { formatPrice } = useCurrency();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -206,7 +208,7 @@ const Checkout = () => {
                   <div className="flex flex-col gap-0.5">
                     <span className="text-sm font-bold text-primary">Royal Oud Fragrance</span>
                     <span className="text-[10px] text-gray-400 uppercase tracking-widest">Qty: 1</span>
-                    <span className="text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>$120.00</span>
+                    <span className="text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>{formatPrice(120)}</span>
                   </div>
                 </div>
                 <div className="flex gap-4">
@@ -216,7 +218,7 @@ const Checkout = () => {
                   <div className="flex flex-col gap-0.5">
                     <span className="text-sm font-bold text-primary">Handcrafted Silk Abaya</span>
                     <span className="text-[10px] text-gray-400 uppercase tracking-widest">Qty: 1</span>
-                    <span className="text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>$245.00</span>
+                    <span className="text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>{formatPrice(245)}</span>
                   </div>
                 </div>
               </div>
@@ -224,15 +226,15 @@ const Checkout = () => {
               <div className="flex flex-col gap-4 border-t border-gray-100 pt-6">
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Subtotal</span>
-                  <span className="font-bold text-primary">$365.00</span>
+                  <span className="font-bold text-primary">{formatPrice(365)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Shipping</span>
-                  <span className="font-bold text-primary">$25.00</span>
+                  <span className="font-bold text-primary">{formatPrice(25)}</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold border-t border-gray-50 pt-4">
                   <span className="text-primary uppercase tracking-widest">Total</span>
-                  <span className="text-secondary" style={{ color: 'var(--color-secondary)' }}>$390.00</span>
+                  <span className="text-secondary" style={{ color: 'var(--color-secondary)' }}>{formatPrice(390)}</span>
                 </div>
               </div>
 
