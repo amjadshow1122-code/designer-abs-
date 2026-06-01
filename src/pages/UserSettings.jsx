@@ -196,14 +196,14 @@ const UserSettings = () => {
           </div>
           <div className="p-8 flex flex-col gap-8">
             <div className="flex flex-col gap-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <p className="font-bold text-primary">Change Password</p>
                   <p className="text-sm text-gray-500">Update your account password regularly for better security.</p>
                 </div>
                 <button 
                   onClick={() => setShowPasswordForm(!showPasswordForm)}
-                  className="btn border border-primary text-primary px-6 py-2 text-xs font-bold hover:bg-primary hover:text-white transition-all"
+                  className="btn border border-primary text-primary px-6 py-2 text-xs font-bold hover:bg-primary hover:text-white transition-all w-fit"
                 >
                   {showPasswordForm ? 'Cancel' : 'Update'}
                 </button>
@@ -252,12 +252,12 @@ const UserSettings = () => {
               </AnimatePresence>
             </div>
 
-            <div className="flex items-center justify-between border-t border-gray-50 pt-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-gray-50 pt-8">
               <div>
                 <p className="font-bold text-primary">Two-Factor Authentication</p>
                 <p className="text-sm text-gray-500">Add an extra layer of security to your account.</p>
               </div>
-              <button className="btn border border-secondary text-secondary px-6 py-2 text-xs font-bold opacity-50 cursor-not-allowed">
+              <button className="btn border border-secondary text-secondary px-6 py-2 text-xs font-bold opacity-50 cursor-not-allowed w-fit">
                 Coming Soon
               </button>
             </div>

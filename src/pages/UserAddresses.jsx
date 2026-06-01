@@ -298,9 +298,9 @@ const UserAddresses = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="flex flex-col gap-2">
+              <form onSubmit={handleSubmit} className="p-4 sm:p-8 flex flex-col gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="flex flex-col gap-2 sm:col-span-2">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Label</label>
                     <div className="flex gap-2">
                       {['Home', 'Work', 'Other'].map(l => (
@@ -337,7 +337,7 @@ const UserAddresses = () => {
                       className="w-full bg-white border border-gray-100 px-4 py-3 rounded-sm outline-none focus:border-secondary transition-all text-sm" 
                     />
                   </div>
-                  <div className="md:col-span-2 flex flex-col gap-2">
+                  <div className="sm:col-span-2 flex flex-col gap-2">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Street Address</label>
                     <input 
                       required
@@ -348,7 +348,7 @@ const UserAddresses = () => {
                       className="w-full bg-white border border-gray-100 px-4 py-3 rounded-sm outline-none focus:border-secondary transition-all text-sm" 
                     />
                   </div>
-                  <div className="md:col-span-2 flex flex-col gap-2">
+                  <div className="sm:col-span-2 flex flex-col gap-2">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Apartment / Suite (Optional)</label>
                     <input 
                       type="text" 
@@ -377,7 +377,7 @@ const UserAddresses = () => {
                       className="w-full bg-white border border-gray-100 px-4 py-3 rounded-sm outline-none focus:border-secondary transition-all text-sm" 
                     />
                   </div>
-                  <div className="md:col-span-2 flex flex-col gap-2">
+                  <div className="sm:col-span-2 flex flex-col gap-2">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Country</label>
                     <select 
                       value={formData.country}

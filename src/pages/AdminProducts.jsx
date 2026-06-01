@@ -372,8 +372,8 @@ const AdminProducts = () => {
             />
           </div>
 
-          <div className="bg-white rounded-xl border overflow-hidden shadow-sm">
-            <table className="w-full text-left">
+          <div className="bg-white rounded-xl border overflow-x-auto shadow-sm">
+            <table className="w-full text-left min-w-[800px]">
               <thead>
                 <tr className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400 border-b">
                   <th className="px-6 py-4">Product</th>

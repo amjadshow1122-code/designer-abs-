@@ -279,9 +279,8 @@ const AdminOrders = () => {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
-        <div className="overflow-x-visible">
-          <table className="w-full text-left">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
+        <table className="w-full text-left min-w-[800px]">
             <thead>
               <tr className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 <th className="px-6 py-4">Order Details</th>
@@ -375,7 +374,6 @@ const AdminOrders = () => {
                 </tr>
               )}
             </tbody>
-          </table>
         </div>
 
         {/* Pagination */}

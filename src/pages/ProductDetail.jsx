@@ -147,12 +147,12 @@ const ProductDetail = () => {
               <img src={mainImage} alt={product.name} className="w-full h-auto object-contain" />
             </motion.div>
             {product.images && product.images.length > 0 && (
-              <div className="flex gap-4">
+              <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
                 {product.images.map((img, idx) => (
                   <button 
                     key={idx}
                     onClick={() => setMainImage(img)}
-                    className={`w-24 h-24 rounded-sm overflow-hidden border-2 transition-all ${mainImage === img ? 'border-secondary' : 'border-transparent opacity-60'}`}
+                    className={`w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-sm overflow-hidden border-2 transition-all ${mainImage === img ? 'border-secondary' : 'border-transparent opacity-60'}`}
                     style={{ borderColor: mainImage === img ? 'var(--color-secondary)' : 'transparent' }}
                   >
                     <img src={img} alt={`${product.name} ${idx}`} className="w-full h-full object-cover" />
