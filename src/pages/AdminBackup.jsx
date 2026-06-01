@@ -54,7 +54,7 @@ const AdminBackup = () => {
       }
 
       const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-      const filename = `arab-finds-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      const filename = `designersale-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
       
       // 1. Download to user
       const url = URL.createObjectURL(blob);
@@ -168,7 +168,7 @@ const AdminBackup = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-heading font-bold text-primary">System Backups</h1>
-          <p className="text-gray-500 text-sm">Secure your heritage database and configuration files.</p>
+          <p className="text-gray-500 text-sm">Secure your platform database and configuration files.</p>
         </div>
         <div className="flex items-center gap-3">
           <label className="btn border border-gray-200 text-primary hover:bg-gray-50 px-6 py-2.5 text-xs font-bold gap-2 cursor-pointer transition-all">
@@ -251,7 +251,7 @@ const AdminBackup = () => {
                       </td>
                     </motion.tr>
                   )) : (
-                    <tr><td colSpan="3" className="px-6 py-20 text-center text-gray-400 italic">No heritage archives found.</td></tr>
+                    <tr><td colSpan="3" className="px-6 py-20 text-center text-gray-400 italic">No backups found yet.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -265,7 +265,7 @@ const AdminBackup = () => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-primary/90 backdrop-blur-md">
             <div className="flex flex-col items-center gap-6 text-white">
               <Loader2 size={60} className="animate-spin text-secondary" />
-              <div className="text-center"><h2 className="text-2xl font-bold font-heading">Restoring Heritage Vault</h2><p className="text-gray-400 mt-2">Synchronizing database tables, please do not close this window...</p></div>
+              <div className="text-center"><h2 className="text-2xl font-bold font-heading">Restoring Platform Data</h2><p className="text-gray-400 mt-2">Synchronizing database tables, please do not close this window...</p></div>
             </div>
           </div>
         )}

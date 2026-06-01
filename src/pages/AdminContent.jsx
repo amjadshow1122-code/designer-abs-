@@ -44,8 +44,31 @@ const AdminContent = () => {
       .order('section_name', { ascending: true });
     
     if (homeData) {
-      setSections(homeData);
-      if (homeData.length > 0) setActiveSection(homeData[0]);
+      let dataToUse = [...homeData];
+      const hasFeaturedBrand = homeData.some(s => s.section_name === 'featured_brand');
+      
+      if (!hasFeaturedBrand) {
+        const { data: newSection } = await supabase.from('homepage_content').insert({
+          section_name: 'featured_brand',
+          content: {
+            title: 'Fashion Spectrum',
+            subtitle: 'FEATURED BRAND',
+            description: 'A luxurious collection of statement pieces, redefining elegance for the modern individual.',
+            button_text: 'Shop the Collection',
+            button_link: '/shop',
+            image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800'
+          },
+          is_visible: true
+        }).select().single();
+        
+        if (newSection) {
+          dataToUse.push(newSection);
+        }
+      }
+      
+      dataToUse.sort((a, b) => a.section_name.localeCompare(b.section_name));
+      setSections(dataToUse);
+      if (dataToUse.length > 0) setActiveSection(dataToUse[0]);
     }
 
     const { data: pageData } = await supabase
@@ -93,7 +116,7 @@ const AdminContent = () => {
   const addSlide = () => {
     const newSlides = [
       ...(activeSection.content.slides || []),
-      { title: 'New Slide Title', subtitle: 'New Slide Subtitle', image: '', cta_text: 'Shop Now' }
+      { title: 'New Slide Title', subtitle: 'New Slide Subtitle', image: '', cta_text: 'Shop Now', is_visible: true, show_content: true }
     ];
     setActiveSection({
       ...activeSection,
@@ -132,7 +155,7 @@ const AdminContent = () => {
       if (index !== null) {
         handleUpdateSlide(index, 'image', publicUrl);
       } else {
-        handleUpdateContent('bg_image', publicUrl);
+        handleUpdateContent(e.target.dataset.field || 'bg_image', publicUrl);
       }
     } catch (err) {
       alert('Upload failed: ' + err.message);
@@ -304,28 +327,83 @@ const AdminContent = () => {
                               <button onClick={addSlide} className="btn border border-secondary text-secondary hover:bg-secondary/5 px-4 py-1.5 text-[10px] font-bold gap-2"><Plus size={14} /> Add Slide</button>
                             </div>
                             {(activeSection.content.slides || []).map((slide, idx) => (
-                              <div key={idx} className="p-6 bg-gray-50 rounded-2xl border border-gray-100 relative group">
-                                <button onClick={() => removeSlide(idx)} className="absolute top-4 right-4 p-2 text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={16} /></button>
+                              <div key={idx} className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm relative group">
+                                <div className="flex items-center gap-6 mb-4 pb-4 border-b border-gray-100">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Slide Visible</span>
+                                    <button 
+                                      onClick={() => handleUpdateSlide(idx, 'is_visible', slide.is_visible !== false ? false : true)}
+                                      className={`w-8 h-4 rounded-full relative transition-colors ${slide.is_visible !== false ? 'bg-secondary' : 'bg-gray-200'}`}
+                                    >
+                                      <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${slide.is_visible !== false ? 'right-0.5' : 'left-0.5'}`} />
+                                    </button>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Show Content</span>
+                                    <button 
+                                      onClick={() => handleUpdateSlide(idx, 'show_content', slide.show_content !== false ? false : true)}
+                                      className={`w-8 h-4 rounded-full relative transition-colors ${slide.show_content !== false ? 'bg-secondary' : 'bg-gray-200'}`}
+                                    >
+                                      <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${slide.show_content !== false ? 'right-0.5' : 'left-0.5'}`} />
+                                    </button>
+                                  </div>
+                                  <button onClick={() => removeSlide(idx)} className="ml-auto p-1.5 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-all" title="Delete Slide"><Trash2 size={14} /></button>
+                                </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                  <div className="flex flex-col gap-4">
-                                    <input type="text" value={slide.title} onChange={(e) => handleUpdateSlide(idx, 'title', e.target.value)} className="bg-white border border-transparent focus:border-secondary px-4 py-2 rounded-lg text-sm" placeholder="Title" />
-                                    <textarea rows="2" value={slide.subtitle} onChange={(e) => handleUpdateSlide(idx, 'subtitle', e.target.value)} className="bg-white border border-transparent focus:border-secondary px-4 py-2 rounded-lg text-sm resize-none" placeholder="Subtitle" />
+                                  <div className={`flex flex-col gap-4 transition-opacity ${slide.show_content !== false ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+                                    <input type="text" value={slide.title || ''} onChange={(e) => handleUpdateSlide(idx, 'title', e.target.value)} className="bg-gray-50 border border-transparent focus:border-secondary px-4 py-2 rounded-lg text-sm outline-none" placeholder="Title" />
+                                    <textarea rows="2" value={slide.subtitle || ''} onChange={(e) => handleUpdateSlide(idx, 'subtitle', e.target.value)} className="bg-gray-50 border border-transparent focus:border-secondary px-4 py-2 rounded-lg text-sm resize-none outline-none" placeholder="Subtitle" />
+                                    <input type="text" value={slide.cta_text || ''} onChange={(e) => handleUpdateSlide(idx, 'cta_text', e.target.value)} className="bg-gray-50 border border-transparent focus:border-secondary px-4 py-2 rounded-lg text-sm outline-none" placeholder="Button Text (e.g. Shop Now)" />
                                   </div>
                                   <div className="relative aspect-video rounded-xl overflow-hidden bg-gray-200 cursor-pointer group/img">
                                     {slide.image && <img src={slide.image} className="w-full h-full object-cover" />}
-                                    <label className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center cursor-pointer"><Upload className="text-white" /><input type="file" className="hidden" onChange={(e) => handleImageUpload(e, idx)} /></label>
+                                    <label className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center cursor-pointer transition-opacity"><Upload className="text-white" /><input type="file" className="hidden" onChange={(e) => handleImageUpload(e, idx)} /></label>
+                                    {slide.image && (
+                                      <button 
+                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleUpdateSlide(idx, 'image', ''); }} 
+                                        className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover/img:opacity-100 z-10 hover:bg-red-600 transition-all shadow-sm"
+                                        title="Delete Image"
+                                      >
+                                        <Trash2 size={14} />
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               </div>
                             ))}
                          </div>
                        ) : (
-                         Object.entries(activeSection.content).map(([key, value]) => (
-                           <div key={key} className="flex flex-col gap-2">
-                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{key.replace('_', ' ')}</label>
-                             <input type="text" value={value} onChange={(e) => handleUpdateContent(key, e.target.value)} className="w-full bg-gray-50 border border-transparent focus:border-secondary px-4 py-3 rounded-xl text-sm outline-none transition-all" />
-                           </div>
-                         ))
+                         <div className="flex flex-col gap-6">
+                           {Object.entries(activeSection.content).map(([key, value]) => {
+                             if (key === 'image' || key === 'bg_image') {
+                               return (
+                                 <div key={key} className="flex flex-col gap-2">
+                                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{key.replace('_', ' ')}</label>
+                                   <div className="flex gap-4 items-start">
+                                     {value && <img src={value} alt="Preview" className="w-32 h-32 object-cover rounded-xl border border-gray-100" />}
+                                     <div className="flex flex-col gap-2 flex-1">
+                                       <label className="btn border border-secondary text-secondary hover:bg-secondary/5 cursor-pointer max-w-xs justify-center">
+                                         <Upload size={16} className="mr-2" /> Upload Image
+                                         <input type="file" className="hidden" data-field={key} onChange={(e) => handleImageUpload(e)} />
+                                       </label>
+                                       <input type="text" value={value} onChange={(e) => handleUpdateContent(key, e.target.value)} className="w-full bg-gray-50 border border-transparent focus:border-secondary px-4 py-3 rounded-xl text-sm outline-none transition-all" placeholder="Or enter image URL" />
+                                     </div>
+                                   </div>
+                                 </div>
+                               );
+                             }
+                             return (
+                               <div key={key} className="flex flex-col gap-2">
+                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{key.replace('_', ' ')}</label>
+                                 {key === 'description' ? (
+                                   <textarea value={value} rows="4" onChange={(e) => handleUpdateContent(key, e.target.value)} className="w-full bg-gray-50 border border-transparent focus:border-secondary px-4 py-3 rounded-xl text-sm outline-none transition-all resize-none" />
+                                 ) : (
+                                   <input type="text" value={value} onChange={(e) => handleUpdateContent(key, e.target.value)} className="w-full bg-gray-50 border border-transparent focus:border-secondary px-4 py-3 rounded-xl text-sm outline-none transition-all" />
+                                 )}
+                               </div>
+                             );
+                           })}
+                         </div>
                        )}
                     </div>
                   </motion.div>

@@ -30,17 +30,48 @@ const AdminCustomers = () => {
 
   const fetchCustomers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    
+    // Fetch registered profiles
+    const { data: profiles, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('is_admin', false)
       .order('updated_at', { ascending: false });
+      
+    // Fetch newsletter subscribers
+    const { data: newsletters, error: newsletterError } = await supabase
+      .from('newsletter_subscribers')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    const combined = [];
     
-    if (error) {
-      console.error('Error fetching customers:', error);
-    } else if (data) {
-      setCustomers(data);
+    if (profiles) {
+      combined.push(...profiles.map(p => ({
+        ...p,
+        display_name: p.full_name || 'Anonymous Collector',
+        role: 'Customer',
+        date: p.updated_at,
+        source: 'profile'
+      })));
     }
+    
+    if (newsletters) {
+      combined.push(...newsletters.map(n => ({
+        id: n.id,
+        display_name: n.email,
+        email: n.email,
+        role: 'Newsletter Only',
+        date: n.created_at,
+        source: 'newsletter',
+        is_admin: false
+      })));
+    }
+    
+    // Sort by latest date
+    combined.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    setCustomers(combined);
     setLoading(false);
   };
 
@@ -53,15 +84,16 @@ const AdminCustomers = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this customer? This will NOT delete their login account, only their profile data.')) {
+  const handleDelete = async (customer) => {
+    if (window.confirm('Are you sure you want to delete this subscriber?')) {
+      const table = customer.source === 'newsletter' ? 'newsletter_subscribers' : 'profiles';
       const { error } = await supabase
-        .from('profiles')
+        .from(table)
         .delete()
-        .eq('id', id);
+        .eq('id', customer.id);
       
       if (error) {
-        alert('Error deleting profile: ' + error.message);
+        alert('Error deleting subscriber: ' + error.message);
       } else {
         fetchCustomers();
       }
@@ -75,8 +107,7 @@ const AdminCustomers = () => {
     const { error } = await supabase
       .from('profiles')
       .update({
-        full_name: selectedCustomer.full_name,
-        rewards_points: parseInt(selectedCustomer.rewards_points) || 0
+        full_name: selectedCustomer.full_name || selectedCustomer.display_name
       })
       .eq('id', selectedCustomer.id);
 
@@ -93,12 +124,12 @@ const AdminCustomers = () => {
     if (customers.length === 0) return;
 
     const csvContent = "data:text/csv;charset=utf-8," 
-      + "Customer ID,Full Name,Rewards Points,Account Type,Last Activity\n"
+      + "Subscriber ID,Full Name,Account Type,Last Activity\n"
       + customers.map(c => {
-          const name = (c.full_name || 'Anonymous Collector').replace(/,/g, '');
-          const role = c.is_admin ? 'Administrator' : 'Collector';
-          const date = new Date(c.updated_at).toLocaleString().replace(/,/g, '');
-          return `${c.id},${name},${c.rewards_points || 0},${role},${date}`;
+          const name = (c.display_name || 'Anonymous').replace(/,/g, '');
+          const role = c.role;
+          const date = new Date(c.date).toLocaleString().replace(/,/g, '');
+          return `${c.id},${name},${role},${date}`;
         }).join("\n");
     
     const encodedUri = encodeURI(csvContent);
@@ -111,8 +142,9 @@ const AdminCustomers = () => {
   };
 
   const filteredCustomers = customers.filter(c => 
-    (c.full_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (c.id || '').toLowerCase().includes(searchTerm.toLowerCase())
+    (c.display_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.email || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -120,8 +152,8 @@ const AdminCustomers = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-primary">Customer Directory</h1>
-          <p className="text-gray-500 text-sm">Manage your global community of heritage collectors.</p>
+          <h1 className="text-3xl font-heading font-bold text-primary">Subscriber Directory</h1>
+          <p className="text-gray-500 text-sm">Manage your registered members, roles, and account status.</p>
         </div>
         <div className="flex items-center gap-3">
           <button 
@@ -157,8 +189,7 @@ const AdminCustomers = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <th className="px-6 py-4">Collector</th>
-                <th className="px-6 py-4">Points</th>
+                <th className="px-6 py-4">Subscriber</th>
                 <th className="px-6 py-4">Role</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
@@ -176,35 +207,36 @@ const AdminCustomers = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs uppercase">
-                          {(customer.full_name || 'U')[0]}
+                          {(customer.display_name || 'U')[0]}
                         </div>
                         <div className="flex flex-col gap-0.5">
-                          <span className="text-sm font-bold text-primary">{customer.full_name || 'Anonymous User'}</span>
-                          <span className="text-[10px] text-gray-400">ID: {customer.id.substring(0, 8)}...</span>
+                          <span className="text-sm font-bold text-primary">{customer.display_name}</span>
+                          <span className="text-[10px] text-gray-400">
+                            {customer.source === 'newsletter' ? 'Newsletter' : `ID: ${customer.id.substring(0, 8)}...`}
+                          </span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-bold text-secondary" style={{ color: 'var(--color-secondary)' }}>
-                      {customer.rewards_points || 0} pts
-                    </td>
                     <td className="px-6 py-4">
                       <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5 w-fit ${
-                        customer.is_admin ? 'bg-secondary/10 text-secondary' : 'bg-gray-100 text-gray-600'
+                        customer.source === 'newsletter' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'
                       }`}>
-                        {customer.is_admin ? <ShieldCheck size={12} /> : <User size={12} />}
-                        {customer.is_admin ? 'Administrator' : 'Customer'}
+                        {customer.source === 'newsletter' ? <Mail size={12} /> : <User size={12} />}
+                        {customer.role}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {customer.source !== 'newsletter' && (
+                          <button 
+                            onClick={() => handleEdit(customer)}
+                            className="p-2 text-gray-400 hover:text-primary transition-colors"
+                          >
+                            <Edit size={18} />
+                          </button>
+                        )}
                         <button 
-                          onClick={() => handleEdit(customer)}
-                          className="p-2 text-gray-400 hover:text-primary transition-colors"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(customer.id)}
+                          onClick={() => handleDelete(customer)}
                           className="p-2 text-gray-400 hover:text-red-500 transition-colors"
                         >
                           <Trash2 size={18} />
@@ -239,10 +271,6 @@ const AdminCustomers = () => {
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Full Name</label>
                   <input type="text" required value={selectedCustomer.full_name || ''} onChange={(e) => setSelectedCustomer({...selectedCustomer, full_name: e.target.value})} className="w-full bg-gray-50 border border-gray-100 px-4 py-3 rounded-xl outline-none focus:border-secondary transition-all" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Rewards Points</label>
-                  <input type="number" value={selectedCustomer.rewards_points || 0} onChange={(e) => setSelectedCustomer({...selectedCustomer, rewards_points: e.target.value})} className="w-full bg-gray-50 border border-gray-100 px-4 py-3 rounded-xl outline-none focus:border-secondary transition-all" />
                 </div>
                 {/* Administrator privileges removed from here for security */}
                 <button type="submit" disabled={isSaving} className="btn btn-primary w-full py-4 gap-2 mt-2">

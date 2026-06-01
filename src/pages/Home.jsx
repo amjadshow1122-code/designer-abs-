@@ -14,15 +14,20 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useCurrency } from '../lib/useCurrency';
-import { useCart } from '../context/CartContext';
 
 const Home = () => {
-  const { addToCart } = useCart();
   const navigate = useNavigate();
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [content, setContent] = useState({});
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    setIsSubscribed(true);
+  };
 
   const fetchHomeData = async () => {
     setLoading(true);
@@ -56,6 +61,17 @@ const Home = () => {
       if (fallback) setFeaturedProducts(fallback);
     }
     
+    // Fetch categories that have an image
+    const { data: categoriesData, error: catError } = await supabase
+      .from('categories')
+      .select('*')
+      .not('image_url', 'is', null)
+      .limit(6);
+      
+    if (!catError && categoriesData) {
+      setCategories(categoriesData);
+    }
+    
     setLoading(false);
   };
 
@@ -83,23 +99,27 @@ const Home = () => {
     );
   }
 
-  const slides = content.hero?.slides || [
+  const allSlides = content.hero?.slides || [
     {
       title: content.hero?.title || 'Discover the Finer Finds',
-      subtitle: content.hero?.subtitle || 'A curated collection of traditional heritage.',
+      subtitle: content.hero?.subtitle || 'Australia\'s designer boutique sales — all in one place.',
       image: content.hero?.bg_image || 'https://images.unsplash.com/photo-1542125387-c7128488903c?auto=format&fit=crop&q=80&w=2000',
-      cta_text: content.hero?.cta_text || 'Shop Collection'
+      cta_text: content.hero?.cta_text || 'Shop Collection',
+      is_visible: true
     }
   ];
 
+  const slides = allSlides.filter(s => s.is_visible !== false);
+
   return (
     <div className="flex flex-col">
-      {/* Hero Slider Section */}
-      {content.hero && (
-        <section className="relative h-[90vh] flex items-center overflow-hidden">
+      {/* Hero Slider Section (Adapted to Split Layout) */}
+      {content.hero && slides.length > 0 && (
+        <section className="relative w-full h-[550px] md:h-[calc(100vh-120px)] min-h-[500px] overflow-hidden bg-bg border-b border-line">
+          {/* Background Image Slider */}
           <AnimatePresence mode="wait">
             <motion.div 
-              key={currentSlide}
+              key={`img-${currentSlide}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -108,143 +128,115 @@ const Home = () => {
             >
               <img 
                 src={slides[currentSlide].image} 
-                alt="" 
-                className="w-full h-full object-cover"
+                alt="Hero" 
+                className="w-full h-full object-cover object-[75%_center] md:object-[center_30%]"
               />
-              <div className="absolute inset-0 bg-black/40"></div>
+              {/* Overlay gradient only if we are showing text */}
+              {slides[currentSlide].show_content !== false && (
+                <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-bg via-bg/90 to-transparent w-full md:w-[65%]" />
+              )}
             </motion.div>
           </AnimatePresence>
 
-          <div className="container relative z-10 px-6 sm:px-10">
-            <AnimatePresence mode="wait">
-              <motion.div 
-                key={currentSlide}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.6 }}
-                className="max-w-2xl text-white pt-20 md:pt-0"
-              >
-                <span className="font-body text-secondary font-bold uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-4 block text-[10px] sm:text-xs">
-                  Legacy of Excellence
-                </span>
-                <h1 className="text-4xl sm:text-5xl md:text-7xl font-heading mb-6 sm:mb-8 leading-tight text-white">
-                  {slides[currentSlide].title}
-                </h1>
-                <p className="text-base sm:text-lg md:text-xl font-body mb-8 sm:mb-10 text-gray-200 leading-relaxed max-w-lg">
-                  {slides[currentSlide].subtitle}
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link to="/shop" className="btn btn-secondary px-8 sm:px-10 py-3 sm:py-4 text-sm sm:text-base text-center">
-                    {slides[currentSlide].cta_text || 'Shop Collection'}
-                  </Link>
-                  <Link to="/about" className="btn bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20 px-8 sm:px-10 py-3 sm:py-4 text-sm sm:text-base text-center">
-                    Our Story
-                  </Link>
-                </div>
-              </motion.div>
-            </AnimatePresence>
+          {/* Issue Badge */}
+          <div className="pill pill-cream absolute top-6 right-6 md:top-8 md:right-8 z-20 shadow-sm">
+            Issue - 05 / 26
           </div>
 
-          {/* Slider Controls */}
+          {/* Copy content */}
+          {slides[currentSlide].show_content !== false && (
+            <div className="relative z-10 container mx-auto h-full flex flex-col justify-center px-4 sm:px-6 pt-12 pb-20 md:pt-8 md:pb-16">
+              <AnimatePresence mode="wait">
+                <motion.div 
+                  key={`copy-${currentSlide}`}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex flex-col gap-4 sm:gap-6 max-w-xl"
+                >
+                  <div className="eyebrow">Legacy of Excellence - 412 Styles on Sale</div>
+                  
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-none">
+                    {slides[currentSlide].title.split(' ').slice(0, -2).join(' ')} <br/>
+                    <em className="text-gold-deep">{slides[currentSlide].title.split(' ').slice(-2).join(' ')}</em>
+                  </h1>
+                  
+                  <p className="text-ink-soft text-base md:text-lg max-w-[380px]">
+                    {slides[currentSlide].subtitle}
+                  </p>
+                  
+                  <div className="flex gap-3 md:gap-4 mt-2 md:mt-3 flex-wrap">
+                    <Link to="/shop" className="btn btn-gold w-full sm:w-auto">
+                      {slides[currentSlide].cta_text || 'Shop the Edit'} &rarr;
+                    </Link>
+                    <Link to="/about" className="btn btn-ghost w-full sm:w-auto">
+                      How it works
+                    </Link>
+                  </div>
+
+                  <div className="hidden sm:flex gap-6 mt-12 pt-6 border-t border-line max-w-[400px]">
+                    <div><span className="font-mono font-bold text-ink text-sm">140+</span> <span className="text-[10px] text-ink-muted uppercase tracking-[0.1em] ml-1 flex flex-col mt-0.5">Boutiques</span></div>
+                    <div><span className="font-mono font-bold text-ink text-sm">1,876</span> <span className="text-[10px] text-ink-muted uppercase tracking-[0.1em] ml-1 flex flex-col mt-0.5">Items Live</span></div>
+                    <div><span className="font-mono font-bold text-ink text-sm">62%</span> <span className="text-[10px] text-ink-muted uppercase tracking-[0.1em] ml-1 flex flex-col mt-0.5">Avg Discount</span></div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          )}
+
+          {/* Slider Dots */}
           {slides.length > 1 && (
-            <>
-              <button 
-                onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
-                className="absolute left-4 sm:left-10 top-1/2 -translate-y-1/2 p-2 sm:p-4 text-white/50 hover:text-white transition-colors z-20"
-              >
-                <ChevronLeft size={32} className="sm:w-10 sm:h-10" />
-              </button>
-              <button 
-                onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
-                className="absolute right-4 sm:right-10 top-1/2 -translate-y-1/2 p-2 sm:p-4 text-white/50 hover:text-white transition-colors z-20"
-              >
-                <ChevronRight size={32} className="sm:w-10 sm:h-10" />
-              </button>
-              
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-                {slides.map((_, idx) => (
-                  <button 
-                    key={idx}
-                    onClick={() => setCurrentSlide(idx)}
-                    className={`h-1 transition-all duration-500 rounded-full ${idx === currentSlide ? 'w-12 bg-secondary' : 'w-4 bg-white/30'}`}
-                  />
-                ))}
-              </div>
-            </>
+            <div className="absolute bottom-8 left-0 right-0 z-20 flex justify-center gap-3">
+              {slides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentSlide(idx)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    idx === currentSlide ? 'bg-gold w-6' : 'bg-white/60 hover:bg-white'
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
           )}
         </section>
       )}
 
-      {/* Features Section */}
-      {content.features && (
-        <section className="bg-white py-8 sm:py-12 border-b border-gray-100">
-          <div className="container">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
-              <div className="flex items-center gap-4 px-4 sm:px-0">
-                <Truck className="text-secondary shrink-0" size={24} />
-                <div>
-                  <h4 className="font-bold text-xs sm:text-sm uppercase">{content.features.shipping_title}</h4>
-                  <p className="text-[10px] sm:text-xs text-gray-500">{content.features.shipping_desc}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 px-4 sm:px-0">
-                <Shield className="text-secondary shrink-0" size={24} />
-                <div>
-                  <h4 className="font-bold text-xs sm:text-sm uppercase">{content.features.secure_title}</h4>
-                  <p className="text-[10px] sm:text-xs text-gray-500">{content.features.secure_desc}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 px-4 sm:px-0">
-                <RotateCcw className="text-secondary shrink-0" size={24} />
-                <div>
-                  <h4 className="font-bold text-xs sm:text-sm uppercase">{content.features.returns_title}</h4>
-                  <p className="text-[10px] sm:text-xs text-gray-500">{content.features.returns_desc}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 px-4 sm:px-0">
-                <Star className="text-secondary shrink-0" size={24} />
-                <div>
-                  <h4 className="font-bold text-xs sm:text-sm uppercase">{content.features.quality_title}</h4>
-                  <p className="text-[10px] sm:text-xs text-gray-500">{content.features.quality_desc}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Collections Section */}
+      {/* Category Grid (Every sale, sorted.) */}
       {content.collections_intro && (
-        <section className="section-padding bg-background">
+        <section className="section py-16 sm:py-24">
           <div className="container">
-            <div className="flex flex-col items-center text-center mb-10 sm:mb-16">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl mb-4">{content.collections_intro.title}</h2>
-              <div className="w-16 sm:w-20 h-1 bg-secondary mb-4 sm:mb-6"></div>
-              <p className="max-w-xl text-gray-500 text-sm sm:text-base px-4">{content.collections_intro.subtitle}</p>
+            <div className="eyebrow mb-3">{content.collections_intro.subtitle || 'SHOP BY CATEGORY'}</div>
+            <div className="section-head flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+              <h2 className="text-4xl sm:text-5xl">{content.collections_intro.title || 'Every sale, sorted.'}</h2>
+              <Link to="/shop" className="section-head-link">VIEW ALL CATEGORIES</Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4 sm:px-0">
-              {[
-                { name: 'Traditional Wear', image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&q=80&w=800' },
-                { name: 'Home Decor', image: 'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?auto=format&fit=crop&q=80&w=800' },
-                { name: 'Fragrances', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800' },
-                { name: 'Jewelry', image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=800' },
-              ].map((cat) => (
-                <motion.div 
-                  key={cat.name}
-                  whileHover={{ y: -10 }}
-                  className="group relative h-[300px] sm:h-[400px] overflow-hidden rounded-sm cursor-pointer"
-                >
-                  <img src={cat.image} alt={cat.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-6 sm:p-8 w-full">
-                    <h3 className="text-white text-xl sm:text-2xl mb-2 sm:mb-4">{cat.name}</h3>
-                    <div className="flex items-center text-white text-xs sm:text-sm font-semibold group-hover:gap-3 transition-all duration-300">
-                      Explore <ArrowRight size={14} className="ml-2 sm:w-4 sm:h-4" />
-                    </div>
+            <div className="tile-grid">
+              {categories.length > 0 ? categories.map((cat) => (
+                <Link to={`/shop?category=${cat.slug || cat.name}`} key={cat.id} className="tile">
+                  <img src={cat.image_url} alt={cat.name} />
+                  <div className="tile-overlay text-center">
+                    <div className="tile-label text-xl sm:text-2xl">{cat.name}</div>
+                    <div className="tile-count"><span>SHOP NOW</span></div>
                   </div>
-                </motion.div>
+                </Link>
+              )) : [
+                { name: 'Maxi Dresses', count: '412', image: 'https://images.unsplash.com/photo-1542152643-d3a3bd427fb3?auto=format&fit=crop&q=80&w=800' },
+                { name: 'Kaftans', count: '86', image: 'https://images.unsplash.com/photo-1605763240000-7e93b172d754?auto=format&fit=crop&q=80&w=800' },
+                { name: 'Tops & Blouses', count: '528', image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&q=80&w=800' },
+                { name: 'Coats & Jackets', count: '247', image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=800' },
+                { name: 'Bags & Accessories', count: '311', image: 'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&q=80&w=800' },
+                { name: 'Jewellery', count: '192', image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=800' },
+              ].map((cat) => (
+                <Link to={`/shop?category=${cat.name}`} key={cat.name} className="tile">
+                  <img src={cat.image} alt={cat.name} />
+                  <div className="tile-overlay text-center">
+                    <div className="tile-label text-xl sm:text-2xl">{cat.name}</div>
+                    <div className="tile-count">{cat.count} ON SALE</div>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -253,46 +245,49 @@ const Home = () => {
 
       {/* Featured Products */}
       {content.products_section && (
-        <section className="section-padding bg-white">
+        <section className="section py-16 sm:py-24 bg-bg-card">
           <div className="container">
-            <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 sm:mb-16 gap-6 px-4 sm:px-0">
-              <div className="max-w-xl text-left">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl mb-4">{content.products_section.title}</h2>
-                <p className="text-gray-500 text-sm sm:text-base">{content.products_section.subtitle}</p>
-              </div>
-              <Link to="/shop" className="btn border border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 text-sm">
-                View All Products
-              </Link>
+            <div className="eyebrow mb-3">JUST ADDED - LAST 48 HOURS</div>
+            <div className="section-head flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+              <h2 className="text-4xl sm:text-5xl leading-tight">Fresh from the<br/><em>boutique floors.</em></h2>
+              <Link to="/shop" className="section-head-link">SEE EVERYTHING NEW</Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
               {featuredProducts.map((product) => (
-                <div key={product.id} className="group flex flex-col gap-4">
-                  <Link to={`/product/${product.id}`} className="relative aspect-[4/5] overflow-hidden bg-gray-100 rounded-sm block">
-                    <img src={product.image_url} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    <div className="absolute top-4 right-4 bg-white/80 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ArrowRight size={16} className="text-primary" />
+                <div key={product.id} className="pcard">
+                  <Link to={`/product/${product.id}`} className="pcard-image group block">
+                    <img src={product.image_url} alt={product.name} className="pcard-img-inner" />
+                    
+                    {/* Badges */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+                      <span className="pill pill-ink shadow-sm">NEW IN</span>
+                      <span className="pill pill-gold shadow-sm">
+                        {Math.floor(Math.random() * 40 + 30)}% OFF
+                      </span>
+                    </div>
+
+
+
+                    {/* Shop Brand Overlay */}
+                    <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 transition-all duration-300 z-10">
+                      <span className="btn btn-ink w-full py-2.5 text-[10px] text-center block">
+                        VIEW DETAILS
+                      </span>
                     </div>
                   </Link>
-                  <div className="flex flex-col items-center text-center">
-                    <div className="flex gap-1 mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={12} fill={i < Math.floor(product.rating) ? "var(--color-secondary)" : "none"} className={i < Math.floor(product.rating) ? "text-secondary" : "text-gray-300"} />
-                      ))}
-                    </div>
+
+                  <div className="flex flex-col gap-1 px-0.5 mt-1">
                     <Link to={`/product/${product.id}`}>
-                      <h3 className="text-xl mb-1 group-hover:text-secondary transition-colors cursor-pointer">{product.name}</h3>
+                      <h3 className="font-display text-[17px] font-medium leading-snug text-ink">{product.name}</h3>
                     </Link>
-                    <p className="font-bold text-secondary">{formatPrice(product.price)}</p>
-                    <button 
-                      onClick={async () => {
-                        await addToCart(product);
-                        navigate('/cart');
-                      }} 
-                      className="mt-4 btn btn-primary w-full py-2 text-xs"
-                    >
-                      Add to Cart
-                    </button>
+                    <p className="text-[13px] text-ink-soft leading-snug line-clamp-2">{product.description || 'Beautiful designer piece'}</p>
+                    <p className="font-mono text-[10px] tracking-[0.16em] uppercase text-ink-muted mt-0.5">AT BOUTIQUE</p>
+                    
+                    <div className="flex items-baseline gap-2.5 mt-1">
+                      <span className="text-[12px] text-ink-muted line-through">{formatPrice(product.price * 1.5)}</span>
+                      <span className="text-[15px] font-bold text-ink tracking-tight">{formatPrice(product.price)}</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -301,22 +296,126 @@ const Home = () => {
         </section>
       )}
 
-      {/* Newsletter */}
+      {/* Boutique Strip */}
+      <section className="border-y border-line grid grid-cols-2 md:grid-cols-6 divide-x divide-y md:divide-y-0 divide-line">
+        {[
+          { name: 'Blue Bungalow', loc: 'NOOSA HEADS, QLD' },
+          { name: 'Pizazz Boutique', loc: 'ARMADALE, VIC' },
+          { name: 'The Edit Paddington', loc: 'PADDINGTON, NSW' },
+          { name: 'Silk & Stone', loc: 'MOSMAN, NSW' },
+          { name: 'Driftwood Byron', loc: 'BYRON BAY, NSW' },
+          { name: 'Hayman Edit Co.', loc: 'BRISBANE, QLD' },
+        ].map((boutique) => (
+          <div key={boutique.name} className="flex flex-col items-center justify-center p-8 hover:bg-bg-card hover:text-gold-deep transition-colors cursor-pointer text-ink">
+            <span className="font-display text-xl text-center leading-tight tracking-tight">{boutique.name}</span>
+            <span className="font-mono text-[9px] tracking-[0.16em] uppercase text-ink-muted mt-1 text-center">{boutique.loc}</span>
+          </div>
+        ))}
+      </section>
+
+      {/* Featured Brand Spotlight */}
+      {content.featured_brand && content.featured_brand.is_visible !== false && (
+        <section className="section py-16 sm:py-24" style={{ background: '#FAF7F2' }}>
+          <div className="container">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
+              
+              {/* Brand Image */}
+              {content.featured_brand.image && (
+                <div className="order-1">
+                  <img
+                    src={content.featured_brand.image}
+                    alt={content.featured_brand.title}
+                    className="w-full h-auto object-contain"
+                  />
+                </div>
+              )}
+
+              {/* Editorial Text Card */}
+              <div className="flex flex-col justify-center py-10 order-2 md:pl-10">
+                <div className="eyebrow mb-5" style={{ color: '#9A9088', letterSpacing: '0.22em' }}>
+                  {content.featured_brand.subtitle || 'FEATURED BRAND'}
+                </div>
+                <h2
+                  className="font-display leading-[1.06] tracking-[-0.015em] mb-3"
+                  style={{ fontSize: 'clamp(36px, 4vw, 58px)', color: '#2A2520' }}
+                >
+                  {content.featured_brand.title}
+                </h2>
+                {content.featured_brand.tagline && (
+                  <p
+                    className="font-display italic leading-[1.1] mb-6"
+                    style={{ fontSize: 'clamp(24px, 2.8vw, 40px)', color: '#A8854A' }}
+                  >
+                    {content.featured_brand.tagline}
+                  </p>
+                )}
+                <p className="text-ink-soft leading-relaxed mb-10 max-w-[440px]" style={{ fontSize: '14px' }}>
+                  {content.featured_brand.description}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link
+                    to={content.featured_brand.button_link || '/boutiques'}
+                    className="btn px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.16em]"
+                    style={{ background: '#2A2520', color: '#FAF7F2', border: '1px solid #2A2520' }}
+                  >
+                    {content.featured_brand.button_text || 'SHOP THE BRAND'}
+                  </Link>
+                  {content.featured_brand.secondary_button_text && (
+                    <Link
+                      to={content.featured_brand.secondary_button_link || '/about'}
+                      className="btn px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.16em]"
+                      style={{ background: 'transparent', color: '#2A2520', border: '1px solid rgba(42,37,32,0.25)' }}
+                    >
+                      {content.featured_brand.secondary_button_text}
+                    </Link>
+                  )}
+                  {!content.featured_brand.secondary_button_text && (
+                    <Link
+                      to="/about"
+                      className="btn px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.16em]"
+                      style={{ background: 'transparent', color: '#2A2520', border: '1px solid rgba(42,37,32,0.25)' }}
+                    >
+                      READ THE STORY
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+
+      {/* Email Capture */}
       {content.newsletter && (
-        <section className="section-padding bg-primary relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-secondary/10 skew-x-12 translate-x-1/2"></div>
-          <div className="container relative z-10">
-            <div className="max-w-3xl mx-auto text-center flex flex-col items-center px-4">
-              <h2 className="text-white text-3xl sm:text-4xl md:text-5xl mb-4 sm:mb-6">{content.newsletter.title}</h2>
-              <p className="text-gray-400 mb-8 sm:mb-10 text-base sm:text-lg">{content.newsletter.subtitle}</p>
-              <form className="w-full max-w-md flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
+        <section className="bg-ink text-bg py-24 sm:py-32 px-6 text-center">
+          <div className="container max-w-3xl mx-auto">
+            <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-gold-soft mb-6">THE DESIGNERSALE LIST</div>
+            <h2 className="text-4xl sm:text-6xl font-display mb-4 tracking-tight">Never miss a sale.</h2>
+            <p className="text-bg/70 max-w-lg mx-auto mb-10 text-[15px] leading-relaxed">
+              Two emails a week, max. The new drops, the deep discounts, and the boutiques worth knowing — landing Tuesday and Friday.
+            </p>
+            
+            {isSubscribed ? (
+              <div className="w-full max-w-md mx-auto mt-8 mb-4 py-6 border border-white/10 bg-white/5 flex flex-col items-center justify-center">
+                <h3 className="text-3xl font-display mb-2 text-gold">Thank you.</h3>
+                <p className="text-sm text-bg/80">You're on the list. Keep an eye on your inbox.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row w-full max-w-md gap-3 sm:gap-0 mx-auto mt-8 mb-4">
                 <input 
                   type="email" 
-                  placeholder="Enter your email address" 
-                  className="w-full bg-white/10 border border-white/20 text-white px-6 py-4 rounded-sm outline-none focus:border-secondary transition-colors text-sm"
+                  placeholder="your@email.com.au" 
+                  required 
+                  className="flex-1 bg-white border border-line px-5 py-3.5 text-sm outline-none focus:border-gold transition-colors w-full sm:w-auto text-ink"
                 />
-                <button className="btn btn-secondary w-full py-4 text-sm font-bold uppercase tracking-widest">Subscribe Now</button>
+                <button type="submit" className="bg-gold text-white px-8 py-3.5 text-xs font-semibold tracking-[0.16em] uppercase hover:bg-gold-deep transition-colors w-full sm:w-auto">
+                  Subscribe &rarr;
+                </button>
               </form>
+            )}
+            <div className="font-mono text-[9px] tracking-[0.16em] uppercase text-bg/40 mt-6">
+              WE NEVER SHARE. UNSUBSCRIBE IN ONE CLICK.
             </div>
           </div>
         </section>

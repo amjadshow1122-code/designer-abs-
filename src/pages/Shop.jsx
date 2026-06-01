@@ -4,10 +4,8 @@ import { Filter, Grid, List, ChevronDown, Search, Star, ArrowRight } from 'lucid
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { useCurrency } from '../lib/useCurrency';
-import { useCart } from '../context/CartContext';
 
 const Shop = () => {
-  const { addToCart } = useCart();
   const [view, setView] = useState('grid');
   const [activeCategory, setActiveCategory] = useState('All');
   const [products, setProducts] = useState([]);
@@ -221,18 +219,15 @@ const Shop = () => {
                     <p className="text-xl font-bold text-primary">{formatPrice(product.price)}</p>
                     {view === 'list' && (
                       <p className="text-sm text-gray-500 mb-4">
-                        Experience the elegance of this fine heritage piece. Hand-selected for its quality and cultural significance.
+                        A curated designer piece, hand-selected for its quality and exceptional style.
                       </p>
                     )}
-                    <button 
-                      onClick={async () => {
-                        await addToCart(product);
-                        navigate('/cart');
-                      }}
-                      className="mt-auto btn btn-primary w-full py-3"
+                    <Link 
+                      to={`/product/${product.id}`}
+                      className="mt-auto btn btn-primary w-full py-3 text-center"
                     >
-                      Add to Cart
-                    </button>
+                      View Details
+                    </Link>
                   </div>
                 </motion.div>
               ))}

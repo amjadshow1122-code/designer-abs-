@@ -27,7 +27,7 @@ const UserAddresses = () => {
     city: '',
     state: '',
     postal_code: '',
-    country: 'United Arab Emirates',
+    country: 'Australia',
     is_default: false,
     label: 'Home' // 'Home', 'Work', 'Other'
   });
@@ -98,7 +98,7 @@ const UserAddresses = () => {
           city: '',
           state: '',
           postal_code: '',
-          country: 'United Arab Emirates',
+          country: 'Australia',
           is_default: false,
           label: 'Home'
         });
@@ -172,7 +172,7 @@ const UserAddresses = () => {
               city: '',
               state: '',
               postal_code: '',
-              country: 'United Arab Emirates',
+              country: 'Australia',
               is_default: false,
               label: 'Home'
             });
@@ -384,12 +384,12 @@ const UserAddresses = () => {
                       onChange={(e) => setFormData({...formData, country: e.target.value})}
                       className="w-full bg-white border border-gray-100 px-4 py-3 rounded-sm outline-none focus:border-secondary transition-all text-sm"
                     >
-                      <option>United Arab Emirates</option>
-                      <option>Saudi Arabia</option>
-                      <option>Qatar</option>
-                      <option>Kuwait</option>
-                      <option>Oman</option>
-                      <option>Bahrain</option>
+                      <option>Australia</option>
+                      <option>New Zealand</option>
+                      <option>United Kingdom</option>
+                      <option>United States</option>
+                      <option>Canada</option>
+                      <option>Singapore</option>
                     </select>
                   </div>
                 </div>

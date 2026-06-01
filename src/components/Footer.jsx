@@ -31,124 +31,109 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-primary text-white pt-20 pb-10" style={{ backgroundColor: 'var(--color-primary)' }}>
+    <footer className="bg-bg-card text-ink pt-20 pb-10 border-t border-line">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-12 mb-16">
           {/* Brand */}
-          <div className="flex flex-col gap-6">
-            <Link to="/" className="flex items-center gap-2">
+          <div className="flex flex-col gap-4">
+            <Link to="/" className="flex items-end gap-1 mb-2">
               {config?.logo ? (
-                <img src={config.logo} alt="Brand Logo" className="h-10 w-auto object-contain" />
-              ) : null}
+                <img src={config.logo} alt="DesignerSale Logo" className="h-8 w-auto object-contain" />
+              ) : (
+                <>
+                  <span className="font-heading text-2xl leading-none text-ink tracking-tight">
+                    Designer<span className="italic text-gold-deep">Sale</span>
+                  </span>
+                  <span className="font-mono text-[8px] opacity-50 mb-0.5">.com.au</span>
+                </>
+              )}
             </Link>
-            <p className="text-gray-400 font-body text-sm leading-relaxed">
-              {description}
-            </p>
-            <div className="flex items-center gap-4">
-              <a href={config?.social_links?.instagram || '#'} className="w-8 h-8 rounded-full border border-gray-700 flex items-center justify-center hover:bg-secondary transition-all">
-                <Globe size={16} />
-              </a>
-              <a href={config?.social_links?.facebook || '#'} className="w-8 h-8 rounded-full border border-gray-700 flex items-center justify-center hover:bg-secondary transition-all">
-                <Share2 size={16} />
-              </a>
-              <a href={config?.social_links?.twitter || '#'} className="w-8 h-8 rounded-full border border-gray-700 flex items-center justify-center hover:bg-secondary transition-all">
-                <MessageCircle size={16} />
-              </a>
+            <div className="font-mono text-[8px] tracking-[0.16em] uppercase text-ink-muted">
+              AUSTRALIA'S DESIGNER BOUTIQUE SALES, IN ONE PLACE
             </div>
+            <p className="text-[13px] text-ink-soft leading-relaxed max-w-[280px] mt-2">
+              {description || 'We aggregate sales from premium Australian boutiques and online retailers. You click through, you buy direct.'}
+            </p>
           </div>
 
           {/* Dynamic Columns */}
           {columns.map((col, idx) => (
-            <div key={idx} className="flex flex-col md:gap-6 border-b border-gray-800 md:border-0">
-              <button 
-                onClick={() => toggleSection(idx)}
-                className="w-full flex items-center justify-between py-4 md:py-0 text-left group"
-              >
-                <h3 className="text-sm md:text-lg font-heading font-bold uppercase tracking-widest text-secondary" style={{ color: 'var(--color-secondary)' }}>
-                  {col.title}
-                </h3>
-                <ChevronDown 
-                  size={16} 
-                  className={`text-secondary transition-transform duration-300 md:hidden ${openSections[idx] ? 'rotate-180' : ''}`} 
-                  style={{ color: 'var(--color-secondary)' }}
-                />
-              </button>
-              <AnimatePresence>
-                {(openSections[idx] || window.innerWidth >= 768) && (
-                  <motion.div
-                    initial={window.innerWidth < 768 ? { height: 0, opacity: 0 } : false}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <ul className="flex flex-col gap-3 pb-6 md:pb-0">
-                      {col.links.map((link, lidx) => (
-                        <li key={lidx}>
-                          <Link to={link.url} className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm">
-                            {link.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            <div key={idx} className="flex flex-col">
+              <h4 className="font-mono text-[11px] font-semibold tracking-[0.18em] uppercase text-ink mb-5">
+                {col.title}
+              </h4>
+              <ul className="flex flex-col gap-3">
+                {col.links.map((link, lidx) => (
+                  <li key={lidx}>
+                    <Link to={link.url} className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
 
-          {/* Contact Info */}
-          <div className="flex flex-col md:gap-6 border-b border-gray-800 md:border-0">
-            <button 
-              onClick={() => toggleSection('contact')}
-              className="w-full flex items-center justify-between py-4 md:py-0 text-left group"
-            >
-              <h3 className="text-sm md:text-lg font-heading font-bold uppercase tracking-widest text-secondary" style={{ color: 'var(--color-secondary)' }}>
-                Contact Us
-              </h3>
-              <ChevronDown 
-                size={16} 
-                className={`text-secondary transition-transform duration-300 md:hidden ${openSections['contact'] ? 'rotate-180' : ''}`} 
-                style={{ color: 'var(--color-secondary)' }}
-              />
-            </button>
-            <AnimatePresence>
-              {(openSections['contact'] || window.innerWidth >= 768) && (
-                <motion.div
-                  initial={window.innerWidth < 768 ? { height: 0, opacity: 0 } : false}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
-                  <ul className="flex flex-col gap-4 pb-6 md:pb-0">
-                    <li className="flex items-start gap-3">
-                      <MapPin size={18} className="text-secondary flex-shrink-0" style={{ color: 'var(--color-secondary)' }} />
-                      <span className="text-gray-400 text-xs md:text-sm">{config?.contact_info?.address || ''}</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Phone size={18} className="text-secondary flex-shrink-0" style={{ color: 'var(--color-secondary)' }} />
-                      <span className="text-gray-400 text-xs md:text-sm">{config?.contact_info?.phone || ''}</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Mail size={18} className="text-secondary flex-shrink-0" style={{ color: 'var(--color-secondary)' }} />
-                      <span className="text-gray-400 text-xs md:text-sm">{config?.contact_info?.email || ''}</span>
-                    </li>
-                  </ul>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          {/* Contact Info (if not covered by dynamic columns) */}
+          {(!columns || columns.length === 0) && (
+            <>
+              <div className="flex flex-col">
+                <h4 className="font-mono text-[11px] font-semibold tracking-[0.18em] uppercase text-ink mb-5">
+                  SHOP
+                </h4>
+                <ul className="flex flex-col gap-3">
+                  <li><Link to="/shop?category=Maxi Dresses" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Maxi Dresses</Link></li>
+                  <li><Link to="/shop?category=Kaftans" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Kaftans</Link></li>
+                  <li><Link to="/shop?category=Tops & Blouses" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Tops & Blouses</Link></li>
+                  <li><Link to="/shop?category=Coats & Jackets" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Coats & Jackets</Link></li>
+                  <li><Link to="/shop?category=Bags & Accessories" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Bags & Accessories</Link></li>
+                  <li><Link to="/shop?category=Jewellery" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Jewellery</Link></li>
+                </ul>
+              </div>
+              <div className="flex flex-col">
+                <h4 className="font-mono text-[11px] font-semibold tracking-[0.18em] uppercase text-ink mb-5">
+                  DISCOVER
+                </h4>
+                <ul className="flex flex-col gap-3">
+                  <li><Link to="/boutiques" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">All Boutiques</Link></li>
+                  <li><Link to="/how-it-works" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">How It Works</Link></li>
+                  <li><Link to="/wishlist" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Wishlist</Link></li>
+                  <li><Link to="/shop?new=true" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">New This Week</Link></li>
+                  <li><Link to="/shop?sale=70" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">70% Off & More</Link></li>
+                </ul>
+              </div>
+              <div className="flex flex-col">
+                <h4 className="font-mono text-[11px] font-semibold tracking-[0.18em] uppercase text-ink mb-5">
+                  FOR BOUTIQUES
+                </h4>
+                <ul className="flex flex-col gap-3">
+                  <li><Link to="/list-sales" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">List Your Sales</Link></li>
+                  <li><Link to="/about" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Our Story</Link></li>
+                  <li><Link to="/fashion-spectrum" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Fashion Spectrum</Link></li>
+                  <li><Link to="/press" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Press</Link></li>
+                </ul>
+              </div>
+              <div className="flex flex-col">
+                <h4 className="font-mono text-[11px] font-semibold tracking-[0.18em] uppercase text-ink mb-5">
+                  HELP
+                </h4>
+                <ul className="flex flex-col gap-3">
+                  <li><Link to="/contact" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Contact</Link></li>
+                  <li><Link to="/faq" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">FAQ</Link></li>
+                  <li><Link to="/privacy" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Privacy</Link></li>
+                  <li><Link to="/terms" className="text-[13px] text-ink-soft hover:text-gold-deep transition-colors">Terms</Link></li>
+                </ul>
+              </div>
+            </>
+          )}
         </div>
 
-        <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-gray-500 text-xs font-body">
-            {copyright}
+        <div className="border-t border-line pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-[12px] text-ink-muted">
+            {copyright || `© ${new Date().getFullYear()} DesignerSale Pty Ltd. Made in Australia.`}
           </p>
-          <div className="flex items-center gap-6">
-            <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa" className="h-6 opacity-50 hover:opacity-100 transition-opacity" />
-            <img src="https://img.icons8.com/color/48/000000/mastercard.png" alt="Mastercard" className="h-6 opacity-50 hover:opacity-100 transition-opacity" />
-            <img src="https://img.icons8.com/color/48/000000/apple-pay.png" alt="Apple Pay" className="h-6 opacity-50 hover:opacity-100 transition-opacity" />
+          <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-muted">
+            BACKED BY FASHION SPECTRUM
           </div>
         </div>
       </div>

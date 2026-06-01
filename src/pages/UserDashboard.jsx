@@ -104,8 +104,8 @@ const UserDashboard = () => {
       {/* Welcome Section */}
       <div className="bg-primary rounded-xl p-8 text-white relative overflow-hidden" style={{ backgroundColor: 'var(--color-primary)' }}>
         <div className="relative z-10">
-          <h2 className="text-3xl font-heading font-bold mb-2">Marhaba, {profile?.full_name || 'Guest'}!</h2>
-          <p className="text-gray-300">Welcome to your heritage collection dashboard.</p>
+          <h2 className="text-3xl font-heading font-bold mb-2">Welcome back, {profile?.full_name || 'Guest'}!</h2>
+          <p className="text-gray-300">Welcome to your DesignerSale.com.au account dashboard.</p>
         </div>
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
       </div>

@@ -129,17 +129,28 @@ const HeaderFooterTab = ({ settings, setSettings, handleLogoUpload }) => {
           <div className="flex flex-col gap-3">
             <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Header Logo</label>
             <div className="flex items-center gap-6">
-              <div className="w-32 h-16 bg-gray-50 rounded-lg border border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
+              <div className="relative w-32 h-16 bg-gray-50 rounded-lg border border-dashed border-gray-200 flex items-center justify-center overflow-hidden group">
                 {settings.header_config?.logo ? (
                   <img src={settings.header_config.logo} alt="Header Logo" className="max-w-full max-h-full object-contain" />
                 ) : (
                   <ImageIcon className="text-gray-200" size={24} />
                 )}
               </div>
-              <label className="btn border border-secondary text-secondary hover:bg-secondary/5 px-4 py-2 text-xs font-bold gap-2 cursor-pointer">
-                <Upload size={14} /> Upload Header Logo
-                <input type="file" className="hidden" onChange={(e) => handleLogoUpload(e, 'header')} />
-              </label>
+              <div className="flex items-center gap-3">
+                <label className="btn border border-secondary text-secondary hover:bg-secondary/5 px-4 py-2 text-xs font-bold gap-2 cursor-pointer">
+                  <Upload size={14} /> Upload Header Logo
+                  <input type="file" className="hidden" onChange={(e) => handleLogoUpload(e, 'header')} />
+                </label>
+                {settings.header_config?.logo && (
+                  <button 
+                    onClick={() => setSettings({...settings, header_config: {...settings.header_config, logo: ''}})}
+                    className="btn bg-red-50 border border-red-100 text-red-500 hover:bg-red-500 hover:text-white px-3 py-2 text-xs font-bold transition-all"
+                    title="Remove Header Logo"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -185,17 +196,28 @@ const HeaderFooterTab = ({ settings, setSettings, handleLogoUpload }) => {
           <div className="flex flex-col gap-3">
             <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Footer Logo (Optional)</label>
             <div className="flex items-center gap-6">
-              <div className="w-32 h-16 bg-gray-50 rounded-lg border border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
+              <div className="relative w-32 h-16 bg-gray-50 rounded-lg border border-dashed border-gray-200 flex items-center justify-center overflow-hidden group">
                 {settings.footer_config?.logo ? (
                   <img src={settings.footer_config.logo} alt="Footer Logo" className="max-w-full max-h-full object-contain" />
                 ) : (
                   <ImageIcon className="text-gray-200" size={24} />
                 )}
               </div>
-              <label className="btn border border-secondary text-secondary hover:bg-secondary/5 px-4 py-2 text-xs font-bold gap-2 cursor-pointer">
-                <Upload size={14} /> Upload Footer Logo
-                <input type="file" className="hidden" onChange={(e) => handleLogoUpload(e, 'footer')} />
-              </label>
+              <div className="flex items-center gap-3">
+                <label className="btn border border-secondary text-secondary hover:bg-secondary/5 px-4 py-2 text-xs font-bold gap-2 cursor-pointer">
+                  <Upload size={14} /> Upload Footer Logo
+                  <input type="file" className="hidden" onChange={(e) => handleLogoUpload(e, 'footer')} />
+                </label>
+                {settings.footer_config?.logo && (
+                  <button 
+                    onClick={() => setSettings({...settings, footer_config: {...settings.footer_config, logo: ''}})}
+                    className="btn bg-red-50 border border-red-100 text-red-500 hover:bg-red-500 hover:text-white px-3 py-2 text-xs font-bold transition-all"
+                    title="Remove Footer Logo"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

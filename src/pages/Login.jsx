@@ -107,7 +107,7 @@ const Login = () => {
               {isLogin ? 'Welcome Back' : 'Create Account'}
             </h1>
             <p className="text-gray-500 text-sm">
-              {isLogin ? 'Access your heritage collection' : 'Join the elite community of Arab Finds'}
+              {isLogin ? 'Access your saved sales and designer picks' : 'Join for free and unlock designer boutique sales'}
             </p>
           </div>
 

@@ -13,7 +13,7 @@ import {
   ArrowDownRight,
   Plus,
   Loader2,
-  FileText
+  MousePointerClick
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -21,14 +21,12 @@ import { supabase } from '../lib/supabase';
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState([
-    { title: 'Total Revenue', value: '$0', change: '0%', isUp: true, icon: BarChart3 },
-    { title: 'Total Orders', value: '0', change: '0%', isUp: true, icon: ShoppingCart },
-    { title: 'New Customers', value: '0', change: '0%', isUp: true, icon: Users },
+    { title: 'New Subscribers', value: '0', change: '0%', isUp: true, icon: Users },
     { title: 'Products In Stock', value: '0', change: '0%', isUp: true, icon: Package },
   ]);
 
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [inventoryStats, setInventoryStats] = useState({ categories: [], totalProducts: 0 });
+
+  const [clickStats, setClickStats] = useState({ days: [], maxCount: 0 });
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = async () => {
@@ -44,39 +42,53 @@ const AdminDashboard = () => {
       .from('profiles')
       .select('*', { count: 'exact', head: true });
 
-    // 3. Fetch Recent Orders (Mocked for now as we transition tables)
-    const { data: orders } = await supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(5);
 
-    // Calculate Category Distribution
-    const categoryCounts = {};
-    if (products) {
-      products.forEach(p => {
-        categoryCounts[p.category] = (categoryCounts[p.category] || 0) + 1;
+
+    // 3. Fetch Click Logs
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const { data: clicks } = await supabase
+      .from('affiliate_clicks')
+      .select('clicked_at')
+      .gte('clicked_at', thirtyDaysAgo.getTime());
+      
+    // Calculate Clicks by Day (last 7 days)
+    const last7Days = Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+
+    const clickCounts = {};
+    last7Days.forEach(day => clickCounts[day] = 0);
+
+    if (clicks) {
+      clicks.forEach(c => {
+        const date = new Date(c.clicked_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        if (clickCounts[date] !== undefined) {
+          clickCounts[date]++;
+        }
       });
     }
-    const categories = Object.entries(categoryCounts).map(([name, count]) => ({
-      name,
-      count,
-      percentage: Math.round((count / (productCount || 1)) * 100)
-    }));
 
-    setInventoryStats({
-      categories: categories.sort((a, b) => b.count - a.count),
-      totalProducts: productCount || 0
+    const clickData = last7Days.map(day => ({
+      day,
+      count: clickCounts[day]
+    }));
+    
+    const maxClicks = Math.max(...clickData.map(d => d.count), 10); // Minimum max of 10 for scale
+
+    setClickStats({
+      days: clickData,
+      maxCount: maxClicks
     });
 
     setStats([
-      { title: 'Total Revenue', value: '$0', change: '+0%', isUp: true, icon: BarChart3 },
-      { title: 'Total Orders', value: orders?.length || 0, change: '+0%', isUp: true, icon: ShoppingCart },
-      { title: 'New Customers', value: customerCount || 0, change: '+100%', isUp: true, icon: Users },
+      { title: 'New Subscribers', value: customerCount || 0, change: '+100%', isUp: true, icon: Users },
       { title: 'Products In Stock', value: productCount || 0, change: '+100%', isUp: true, icon: Package },
     ]);
 
-    if (orders) setRecentOrders(orders);
+
     
     setLoading(false);
   };
@@ -85,18 +97,7 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, []);
 
-  const handleGenerateReport = () => {
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + "Category,Products,Percentage\n"
-      + inventoryStats.categories.map(c => `${c.name},${c.count},${c.percentage}%`).join("\n");
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `inventory_report_${new Date().toLocaleDateString()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-  };
+
 
   return (
     <div className="flex flex-col gap-8">
@@ -127,104 +128,42 @@ const AdminDashboard = () => {
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Orders */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-50 flex items-center justify-between">
-            <h3 className="font-heading text-xl font-bold">Recent Orders</h3>
-            <button onClick={() => navigate('/admin/orders')} className="text-sm font-bold text-secondary hover:underline">View All</button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                  <th className="px-6 py-4">Order ID</th>
-                  <th className="px-6 py-4">Customer</th>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4">Total</th>
-                  <th className="px-6 py-4">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {recentOrders.length > 0 ? (
-                  recentOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-bold text-primary">#ORD-{order.id.slice(0,8)}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{order.customer_email || 'Guest'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString()}</td>
-                      <td className="px-6 py-4 text-sm font-bold text-primary">${order.total_amount}</td>
-                      <td className="px-6 py-4">
-                        <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${
-                          order.status === 'Delivered' ? 'bg-green-100 text-green-600' :
-                          order.status === 'Processing' ? 'bg-blue-100 text-blue-600' :
-                          'bg-gray-100 text-gray-600'
-                        }`}>
-                          {order.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-12 text-center">
-                      {loading ? <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-200" /> : <p className="text-gray-400 italic text-sm">No recent orders to display.</p>}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
 
-        {/* Inventory Summary */}
+        {/* Clicks Chart Summary */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
           <div className="p-6 border-b border-gray-50 flex items-center justify-between">
-            <h3 className="font-heading text-xl font-bold">Inventory</h3>
-            <button onClick={() => navigate('/admin/products')} className="p-2 bg-primary text-white rounded-md hover:bg-primary-light transition-all">
-              <Plus size={16} />
+            <h3 className="font-heading text-xl font-bold">Recent Clicks</h3>
+            <button onClick={() => navigate('/admin/clicks')} className="text-sm font-bold text-secondary hover:text-secondary-dark transition-colors">
+              View All &rarr;
             </button>
           </div>
           <div className="p-6 flex flex-col gap-6 flex-grow">
-            {inventoryStats.categories.length > 0 ? (
-              <div className="flex flex-col gap-6">
-                {inventoryStats.categories.slice(0, 4).map((cat) => (
-                  <div key={cat.name} className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600 font-medium">{cat.name}</span>
-                      <span className="font-bold text-primary">{cat.percentage}%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-gray-50 rounded-full overflow-hidden">
+            <div className="flex flex-col gap-4 mt-auto">
+              <div className="flex items-end justify-between h-40 gap-2 border-b border-gray-100 pb-2">
+                {clickStats.days.map((day, idx) => {
+                  const heightPercentage = (day.count / clickStats.maxCount) * 100;
+                  return (
+                    <div key={idx} className="flex flex-col items-center justify-end w-full gap-2 group relative">
+                      <div className="opacity-0 group-hover:opacity-100 absolute -top-8 bg-gray-900 text-white text-[10px] py-1 px-2 rounded font-bold transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                        {day.count} Clicks
+                      </div>
                       <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${cat.percentage}%` }}
-                        className="h-full bg-secondary"
+                        initial={{ height: 0 }}
+                        animate={{ height: `${Math.max(heightPercentage, 2)}%` }}
+                        transition={{ duration: 0.5, delay: idx * 0.1 }}
+                        className="w-full bg-secondary rounded-t-sm hover:bg-secondary-dark transition-colors cursor-pointer"
                       ></motion.div>
                     </div>
+                  );
+                })}
+              </div>
+              <div className="flex items-center justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                {clickStats.days.map((day, idx) => (
+                  <div key={idx} className="w-full text-center truncate px-1">
+                    {day.day}
                   </div>
                 ))}
-                {inventoryStats.categories.length > 4 && (
-                  <p className="text-[10px] text-gray-400 text-center font-bold uppercase tracking-widest">
-                    + {inventoryStats.categories.length - 4} More Categories
-                  </p>
-                )}
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                <Package size={40} className="text-gray-100 mb-4" />
-                <p className="text-xs text-gray-400 italic">
-                  Add products to see category distribution.
-                </p>
-              </div>
-            )}
-            
-            <div className="mt-auto">
-              <button 
-                onClick={handleGenerateReport}
-                disabled={inventoryStats.totalProducts === 0}
-                className="btn btn-secondary w-full py-3 flex items-center justify-center gap-2"
-              >
-                <FileText size={18} />
-                Generate Inventory Report
-              </button>
             </div>
           </div>
         </div>

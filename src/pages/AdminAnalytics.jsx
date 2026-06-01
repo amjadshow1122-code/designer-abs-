@@ -101,7 +101,7 @@ const AdminAnalytics = () => {
       + "Metric,Value\n"
       + `Total Revenue,"${formatPrice(stats.revenue)}"\n`
       + `Total Orders,${stats.orders}\n`
-      + `Total Customers,${stats.customers}\n`
+      + `Total Subscribers,${stats.customers}\n`
       + `Average Order Value,"${formatPrice(stats.avgOrder)}"\n\n`
       + "Top Products,Sales,Revenue\n"
       + topProducts.map(p => `${p.name},${p.sales},"${formatPrice(p.revenue)}"`).join("\n");
@@ -118,7 +118,7 @@ const AdminAnalytics = () => {
   const kpis = [
     { title: 'Gross Revenue', value: formatPrice(stats.revenue), change: '+12%', isUp: true, icon: Wallet },
     { title: 'Total Orders', value: stats.orders.toString(), change: '+5%', isUp: true, icon: ShoppingBag },
-    { title: 'Active Customers', value: stats.customers.toString(), change: '+8%', isUp: true, icon: Users },
+    { title: 'Active Subscribers', value: stats.customers.toString(), change: '+8%', isUp: true, icon: Users },
     { title: 'Avg. Order Value', value: formatPrice(stats.avgOrder), change: '+3%', isUp: true, icon: TrendingUp },
   ];
 
@@ -128,7 +128,7 @@ const AdminAnalytics = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-heading font-bold text-primary">Market Analytics</h1>
-          <p className="text-gray-500 text-sm">Deep insights into your luxury heritage sales performance.</p>
+          <p className="text-gray-500 text-sm">Deep insights into platform performance, affiliate clicks, and sales trends.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative group">

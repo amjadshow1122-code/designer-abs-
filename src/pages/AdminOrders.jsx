@@ -111,7 +111,7 @@ const AdminOrders = () => {
         </head>
         <body>
           <div class="header">
-            <div class="logo">ARAB FINDS</div>
+            <div class="logo">DESIGNERSALE.COM.AU</div>
             <div class="invoice-info">
               <div class="label">Invoice Number</div>
               <div class="value">#ORD-${order.id.slice(0, 8)}</div>
@@ -168,7 +168,7 @@ const AdminOrders = () => {
           </div>
 
           <div style="margin-top: 80px; text-align: center; font-size: 12px; color: #999;">
-            Thank you for your purchase from Arab Finds. Your heritage treasure is on its way.
+            Thank you for your purchase from DesignerSale.com.au. Your order is on its way!
           </div>
         </body>
       </html>
@@ -197,7 +197,7 @@ const AdminOrders = () => {
     if (orders.length === 0) return;
 
     const csvContent = "data:text/csv;charset=utf-8," 
-      + "Order ID,Customer Email,Date,Total,Status,Payment Method\n"
+      + "Order ID,Subscriber Email,Date,Total,Status,Payment Method\n"
       + orders.map(o => `${o.id},${o.customer_email},${new Date(o.created_at).toLocaleString()},${o.total_amount},${o.status},${o.payment_method}`).join("\n");
     
     const encodedUri = encodeURI(csvContent);
@@ -242,7 +242,7 @@ const AdminOrders = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-heading font-bold text-primary">Orders Management</h1>
-          <p className="text-gray-500 text-sm">Track and fulfill your heritage acquisition orders.</p>
+          <p className="text-gray-500 text-sm">Track and fulfil your platform orders — Stripe status, shipping, and history.</p>
         </div>
         <div className="flex items-center gap-3">
           <button 
@@ -262,7 +262,7 @@ const AdminOrders = () => {
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Search by order ID or customer..." 
+            placeholder="Search by order ID or subscriber..."
             className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-primary pl-12 pr-4 py-2.5 rounded-lg text-sm outline-none transition-all"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -285,7 +285,7 @@ const AdminOrders = () => {
             <thead>
               <tr className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 <th className="px-6 py-4">Order Details</th>
-                <th className="px-6 py-4">Customer</th>
+                <th className="px-6 py-4">Subscriber</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Total</th>
                 <th className="px-6 py-4 text-right">Actions</th>
@@ -425,7 +425,7 @@ const AdminOrders = () => {
               {/* Customer & Status */}
               <div className="grid grid-cols-2 gap-8">
                 <div className="flex flex-col gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Customer Info</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Subscriber Info</span>
                   <p className="text-sm font-bold text-primary">{selectedOrder.customer_email}</p>
                   <p className="text-xs text-gray-500">Method: {selectedOrder.payment_method}</p>
                 </div>

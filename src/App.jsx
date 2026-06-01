@@ -9,8 +9,6 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import About from './pages/About';
 import AdminProducts from './pages/AdminProducts';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
 import UserPanel from './components/UserPanel';
 import UserDashboard from './pages/UserDashboard';
 import UserOrders from './pages/UserOrders';
@@ -21,17 +19,42 @@ import UserNotifications from './pages/UserNotifications';
 import ForgotPassword from './pages/ForgotPassword';
 import AdminLogin from './pages/AdminLogin';
 import AdminLayout from './components/AdminLayout';
-import AdminOrders from './pages/AdminOrders';
 import AdminCustomers from './pages/AdminCustomers';
-import AdminAnalytics from './pages/AdminAnalytics';
 import AdminSettings from './pages/AdminSettings';
 import AdminBackup from './pages/AdminBackup';
 import AdminCategories from './pages/AdminCategories';
+import AdminPages from './pages/AdminPages';
 import AdminContent from './pages/AdminContent';
 import AdminMedia from './pages/AdminMedia';
 import MaintenancePage from './pages/MaintenancePage';
 import { supabase } from './lib/supabase';
 import { CartProvider } from './context/CartContext';
+
+// DesignerSale new pages
+import SalesBrowse from './pages/SalesBrowse';
+import SaleDetail from './pages/SaleDetail';
+import MerchantDirectory from './pages/MerchantDirectory';
+import MerchantProfile from './pages/MerchantProfile';
+import SearchResults from './pages/SearchResults';
+import GoRedirect from './pages/GoRedirect';
+import AdminSales from './pages/AdminSales';
+import AdminMerchants from './pages/AdminMerchants';
+import AdminClicks from './pages/AdminClicks';
+import AdminNewsletter from './pages/AdminNewsletter';
+// New missing pages
+import OrderSuccess from './pages/OrderSuccess';
+import OrderCancelled from './pages/OrderCancelled';
+import ResetPassword from './pages/ResetPassword';
+import NotFound from './pages/NotFound';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfUse from './pages/TermsOfUse';
+import CookiePolicy from './pages/CookiePolicy';
+import Contact from './pages/Contact';
+import HowItWorks from './pages/HowItWorks';
+import Unsubscribe from './pages/Unsubscribe';
+import CategoryBrowse from './pages/CategoryBrowse';
+import CustomPageBrowse from './pages/CustomPageBrowse';
+
 
 // Helper component to guard against maintenance mode
 const MaintenanceGuard = ({ children }) => {
@@ -93,11 +116,15 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
+              <Route path="/sales" element={<SalesBrowse />} />
+              <Route path="/sales/:slug" element={<SaleDetail />} />
+              <Route path="/merchants" element={<MerchantDirectory />} />
+              <Route path="/merchants/:slug" element={<MerchantProfile />} />
+              <Route path="/search" element={<SearchResults />} />
+              <Route path="/go/:type/:id" element={<GoRedirect />} />
               <Route path="/about" element={<About />} />
               <Route path="/collections" element={<Collections />} />
               <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               
@@ -109,18 +136,43 @@ function App() {
               <Route path="/profile/addresses" element={<UserPanel><UserAddresses /></UserPanel>} />
               <Route path="/profile/notifications" element={<UserPanel><UserNotifications /></UserPanel>} />
 
+              {/* Order flow */}
+              <Route path="/order/success" element={<OrderSuccess />} />
+              <Route path="/order/cancelled" element={<OrderCancelled />} />
+
+              {/* Auth */}
+              <Route path="/reset-password" element={<ResetPassword />} />
+
+              {/* Static / legal pages */}
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfUse />} />
+              <Route path="/cookies" element={<CookiePolicy />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
+
+              {/* Frontend Category / Pages */}
+              <Route path="/category/:slug" element={<CategoryBrowse />} />
+              <Route path="/pages/:slug" element={<CustomPageBrowse />} />
+
               <Route path="/admin/login" element={<AdminLogin />} />
               
               <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
               <Route path="/admin/products" element={<AdminLayout><AdminProducts /></AdminLayout>} />
+              <Route path="/admin/sales" element={<AdminLayout><AdminSales /></AdminLayout>} />
+              <Route path="/admin/merchants" element={<AdminLayout><AdminMerchants /></AdminLayout>} />
+              <Route path="/admin/clicks" element={<AdminLayout><AdminClicks /></AdminLayout>} />
               <Route path="/admin/categories" element={<AdminLayout><AdminCategories /></AdminLayout>} />
+              <Route path="/admin/pages" element={<AdminLayout><AdminPages /></AdminLayout>} />
               <Route path="/admin/content" element={<AdminLayout><AdminContent /></AdminLayout>} />
               <Route path="/admin/media" element={<AdminLayout><AdminMedia /></AdminLayout>} />
-              <Route path="/admin/orders" element={<AdminLayout><AdminOrders /></AdminLayout>} />
               <Route path="/admin/customers" element={<AdminLayout><AdminCustomers /></AdminLayout>} />
-              <Route path="/admin/analytics" element={<AdminLayout><AdminAnalytics /></AdminLayout>} />
               <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
               <Route path="/admin/backup" element={<AdminLayout><AdminBackup /></AdminLayout>} />
+              <Route path="/admin/newsletter" element={<AdminLayout><AdminNewsletter /></AdminLayout>} />
+
+              {/* 404 Catch-all — must be last */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
         </CartProvider>

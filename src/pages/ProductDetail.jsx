@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Star, Heart, Share2, ShoppingCart, ShieldCheck, Truck, RotateCcw, ChevronRight, Minus, Plus } from 'lucide-react';
+import { Star, Share2, ShoppingCart, ShieldCheck, Truck, RotateCcw, ChevronRight, Minus, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { useCurrency } from '../lib/useCurrency';
-import { useCart } from '../context/CartContext';
 
 const ProductDetail = () => {
-  const { addToCart } = useCart();
   const { id } = useParams();
   const navigate = useNavigate();
-  const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
-  const [isAdding, setIsAdding] = useState(false);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState(null);
@@ -35,12 +31,6 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
-  const handleAddToCart = async () => {
-    setIsAdding(true);
-    await addToCart(product, quantity);
-    setIsAdding(false);
-    navigate('/cart');
-  };
 
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
@@ -195,47 +185,25 @@ const ProductDetail = () => {
             </p>
 
             <div className="flex flex-col gap-6 border-y border-gray-100 py-6 sm:py-8">
-              <div className="flex items-center justify-between sm:justify-start gap-6">
-                <span className="text-xs sm:text-sm font-bold uppercase tracking-widest sm:w-24">Quantity</span>
-                <div className="flex items-center border border-gray-200 rounded-sm">
-                  <button 
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 sm:p-3 hover:bg-gray-50 transition-colors"
+              <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                {product.external_url ? (
+                  <a 
+                    href={product.external_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary flex-grow py-5 text-center flex items-center justify-center gap-3"
                   >
-                    <Minus size={14} className="sm:w-4 sm:h-4" />
-                  </button>
-                  <span className="w-10 sm:w-12 text-center font-bold text-sm sm:text-base">{quantity}</span>
+                    View on Retailer
+                  </a>
+                ) : (
                   <button 
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-2 sm:p-3 hover:bg-gray-50 transition-colors"
+                    disabled
+                    className="btn btn-primary flex-grow py-5 text-center flex items-center justify-center gap-3 opacity-50 cursor-not-allowed"
                   >
-                    <Plus size={14} className="sm:w-4 sm:h-4" />
+                    Not Available
                   </button>
-                </div>
-              </div>
+                )}
 
-              <div className="flex flex-col sm:flex-row gap-4 mt-2">
-                <button 
-                  onClick={handleAddToCart}
-                  disabled={isAdding}
-                  className="btn btn-primary flex-grow py-5 gap-3"
-                >
-                  {isAdding ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <>
-                      <ShoppingCart size={20} />
-                      Add to Cart
-                    </>
-                  )}
-                </button>
-                <button 
-                  onClick={toggleWishlist}
-                  disabled={wishlistLoading}
-                  className={`btn border border-gray-200 px-6 transition-all ${isInWishlist ? 'bg-red-50 border-red-100 text-red-500' : 'text-primary hover:bg-gray-50'}`}
-                >
-                  <Heart size={20} fill={isInWishlist ? "currentColor" : "none"} />
-                </button>
                 <button 
                   onClick={handleShare}
                   className="btn border border-gray-200 text-primary hover:bg-gray-50 px-6"

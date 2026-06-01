@@ -62,7 +62,7 @@ const AdminSettings = () => {
     email_new_orders: true,
     email_low_stock: true,
     email_customer_messages: true,
-    primary_color: '#001236',
+    primary_color: '#D4A373',
     secondary_color: '#775a19',
     stripe_connected: false,
     paypal_connected: false,
@@ -110,9 +110,7 @@ const AdminSettings = () => {
           footer_config: {
             ...settings.footer_config,
             ...(data.footer_config || {}),
-            columns: (data.footer_config?.columns && data.footer_config.columns.length > 0 && data.footer_config.columns[0].title !== 'Shop') 
-              ? data.footer_config.columns 
-              : settings.footer_config.columns,
+            columns: data.footer_config?.columns || settings.footer_config.columns,
             social_links: data.footer_config?.social_links || settings.footer_config.social_links,
             contact_info: data.footer_config?.contact_info || settings.footer_config.contact_info
           }
@@ -186,7 +184,6 @@ const AdminSettings = () => {
     { name: 'Security & Access', icon: Lock },
     { name: 'Notifications', icon: Bell },
     { name: 'Store Branding', icon: Palette },
-    { name: 'Payment Gateways', icon: CreditCard },
   ];
 
   if (loading) {
@@ -243,7 +240,6 @@ const AdminSettings = () => {
             {activeTab === 'Security & Access' && <SecurityTab settings={settings} setSettings={setSettings} />}
             {activeTab === 'Notifications' && <NotificationsTab settings={settings} setSettings={setSettings} />}
             {activeTab === 'Store Branding' && <BrandingTab settings={settings} setSettings={setSettings} />}
-            {activeTab === 'Payment Gateways' && <PaymentTab settings={settings} setSettings={setSettings} showKeys={showKeys} setShowKeys={setShowKeys} />}
           </AnimatePresence>
         </div>
       </div>

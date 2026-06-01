@@ -74,7 +74,7 @@ const UserPanel = ({ children }) => {
             >
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-secondary/10 rounded-lg text-secondary">
-                  {navItems.find(item => item.path === location.pathname)?.icon({ size: 18 }) || <User size={18} />}
+                  {(() => { const Icon = navItems.find(item => item.path === location.pathname)?.icon || User; return <Icon size={18} />; })()}
                 </div>
                 <div className="flex flex-col items-start">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Account Menu</span>

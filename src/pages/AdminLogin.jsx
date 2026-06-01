@@ -47,7 +47,7 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#001236] flex items-center justify-center py-20 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#D4A373] flex items-center justify-center py-20 px-4 relative overflow-hidden">
       {/* Abstract Tech Background */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #775a19 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
@@ -62,11 +62,11 @@ const AdminLogin = () => {
         <div className="p-10 md:p-12 flex flex-col gap-10">
           <div className="flex flex-col items-center text-center gap-4">
             <div className="flex items-center justify-center">
-              <img src="/ARAB_FINDS-removebg-preview.png" alt="Arab Finds" className="h-16 w-auto object-contain brightness-0 invert" />
+              <span className="font-heading text-2xl font-bold text-white tracking-widest uppercase">DESIGNER<span className="text-secondary">SALE</span></span>
             </div>
             <div>
               <h1 className="text-3xl font-heading font-bold text-white tracking-tight">Admin Terminal</h1>
-              <p className="text-gray-400 text-sm mt-1 uppercase tracking-[0.2em] font-bold">Arab Finds Management System</p>
+              <p className="text-gray-400 text-sm mt-1 uppercase tracking-[0.2em] font-bold">DesignerSale Management System</p>
             </div>
           </div>
 
@@ -90,7 +90,7 @@ const AdminLogin = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@arabfinds.com"
+                  placeholder="admin@designersale.com.au"
                   className="w-full bg-[#002a70] border border-white/5 px-12 py-4 rounded-xl outline-none focus:border-secondary focus:bg-[#00348a] transition-all text-sm text-white placeholder:text-gray-600"
                 />
               </div>

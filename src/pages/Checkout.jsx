@@ -31,7 +31,7 @@ const Checkout = () => {
     address: '',
     city: '',
     postalCode: '',
-    country: 'United Arab Emirates',
+    country: 'Australia',
     phone: ''
   });
   const [saveAddress, setSaveAddress] = useState(false);
@@ -152,8 +152,10 @@ const Checkout = () => {
       // 3. Clear cart
       await clearCart();
 
-      setOrderNumber(`#AF-${order.order_number || order.id.toString().slice(0, 5).toUpperCase()}`);
-      setStep(3); // Success step
+      setOrderNumber(`#ORD-${order.id.toString().slice(0, 8).toUpperCase()}`);
+      // Redirect to the dedicated order success page
+      navigate(`/order/success?session_id=${order.id}`);
+      setStep(3); // fallback in case navigate is slow
     } catch (error) {
       console.error('Checkout error:', error);
       alert('Failed to place order: ' + error.message);
@@ -175,7 +177,7 @@ const Checkout = () => {
           </div>
           <h1 className="text-2xl sm:text-3xl font-heading font-bold text-primary">Order Confirmed!</h1>
           <p className="text-sm sm:text-base text-gray-500 leading-relaxed">
-            Thank you for your purchase. Your heritage find is being prepared for its journey to your doorstep.
+            Thank you for your purchase. Your designer boutique purchase is being prepared for its journey to your doorstep.
           </p>
           <div className="w-full p-4 bg-gray-50 rounded-lg text-left">
             <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
@@ -325,12 +327,8 @@ const Checkout = () => {
                         onChange={(e) => setFormData({...formData, country: e.target.value})}
                         className="w-full bg-white border border-gray-100 px-4 py-3.5 rounded-sm outline-none focus:border-secondary transition-all"
                       >
-                        <option>United Arab Emirates</option>
-                        <option>Saudi Arabia</option>
-                        <option>Qatar</option>
-                        <option>Kuwait</option>
-                        <option>Oman</option>
-                        <option>Bahrain</option>
+                        <option>Australia</option>
+                        <option>New Zealand</option>
                       </select>
                     </div>
                   </div>
@@ -464,7 +462,7 @@ const Checkout = () => {
               <div className="p-3 sm:p-4 bg-gray-50 rounded-lg flex gap-3 items-start">
                 <Info size={14} className="text-primary mt-0.5 flex-shrink-0 sm:w-4 sm:h-4" />
                 <p className="text-[9px] sm:text-[10px] text-gray-400 leading-relaxed uppercase tracking-widest font-bold">
-                  All heritage items are carefully inspected and securely packaged to ensure safe delivery of your treasures.
+                  All designer boutique items are carefully inspected and securely packaged to ensure safe delivery of your purchases.
                 </p>
               </div>
             </div>

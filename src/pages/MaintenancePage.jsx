@@ -4,7 +4,7 @@ import { Hammer, Clock, Mail } from 'lucide-react';
 
 const MaintenancePage = () => {
   return (
-    <div className="min-h-screen bg-[#001236] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#D4A373] flex items-center justify-center p-4">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-3xl"></div>
@@ -21,10 +21,10 @@ const MaintenancePage = () => {
         
         <div className="flex flex-col gap-4">
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-white leading-tight">
-            Preserving Our <span className="italic text-secondary">Heritage</span>
+            Refining the <span className="italic text-secondary">Boutique</span> Experience
           </h1>
           <p className="text-gray-400 text-lg leading-relaxed">
-            Arab Finds is currently undergoing scheduled maintenance to enhance your luxury acquisition experience. We'll be back shortly with a more refined collection.
+            DesignerSale.com.au is currently undergoing scheduled updates to enhance your Australian boutique shopping experience. We'll be back shortly with new active sales.
           </p>
         </div>
 
@@ -32,17 +32,17 @@ const MaintenancePage = () => {
           <div className="p-6 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
             <Clock className="text-secondary" size={20} />
             <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Expected Return</span>
-            <span className="text-white font-bold">2-4 Hours</span>
+            <span className="text-white font-bold">1-2 Hours</span>
           </div>
           <div className="p-6 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
             <Mail className="text-secondary" size={20} />
             <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Support</span>
-            <span className="text-white font-bold">support@arabfinds.com</span>
+            <span className="text-white font-bold">support@designersale.com.au</span>
           </div>
         </div>
 
         <div className="pt-8 border-t border-white/5 w-full">
-          <img src="/ARAB_FINDS-removebg-preview.png" alt="Arab Finds" className="h-8 mx-auto brightness-0 invert opacity-30" />
+          <span className="font-heading text-xl font-bold text-white/30 tracking-widest uppercase">DESIGNER<span className="text-secondary/30">SALE</span></span>
         </div>
       </motion.div>
     </div>

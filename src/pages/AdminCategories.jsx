@@ -11,6 +11,7 @@ import {
   Hash
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { optimizeImage } from '../lib/imageOptimization';
 
 const AdminCategories = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,10 +19,12 @@ const AdminCategories = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
-    description: ''
+    description: '',
+    image_url: ''
   });
 
   const fetchCategories = async () => {
@@ -63,9 +66,38 @@ const AdminCategories = () => {
     setFormData({
       name: category.name,
       slug: category.slug,
-      description: category.description || ''
+      description: category.description || '',
+      image_url: category.image_url || ''
     });
     setIsModalOpen(true);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const optimizedFile = await optimizeImage(file, 0.8, 800);
+      const fileName = `category-${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
+      const filePath = `categories/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('backups')
+        .upload(filePath, optimizedFile);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('backups')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, image_url: publicUrl });
+    } catch (err) {
+      alert('Upload failed: ' + err.message);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -91,7 +123,7 @@ const AdminCategories = () => {
     } else {
       setIsModalOpen(false);
       setEditingCategory(null);
-      setFormData({ name: '', slug: '', description: '' });
+      setFormData({ name: '', slug: '', description: '', image_url: '' });
       fetchCategories();
     }
     setLoading(false);
@@ -107,12 +139,12 @@ const AdminCategories = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-heading font-bold text-primary">Categories</h1>
-          <p className="text-gray-500 text-sm">Organize your heritage collection by catalog segments.</p>
+          <p className="text-gray-500 text-sm">Organise categories and tags used across sales, products, and merchants.</p>
         </div>
         <button 
           onClick={() => {
             setEditingCategory(null);
-            setFormData({ name: '', slug: '', description: '' });
+            setFormData({ name: '', slug: '', description: '', image_url: '' });
             setIsModalOpen(true);
           }}
           className="btn btn-primary gap-2 py-3 px-6"
@@ -146,22 +178,34 @@ const AdminCategories = () => {
           <motion.div 
             layout
             key={cat.id}
-            className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group"
+            className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group overflow-hidden flex flex-col"
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center text-primary">
-                <Tags size={24} />
+            {cat.image_url ? (
+              <div className="h-40 w-full bg-gray-100 relative">
+                <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" />
+                <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 backdrop-blur-sm rounded-lg shadow-sm p-1">
+                  <button onClick={() => handleEdit(cat)} className="p-2 text-gray-600 hover:text-primary"><Edit size={16} /></button>
+                  <button onClick={() => handleDelete(cat.id)} className="p-2 text-gray-600 hover:text-red-500"><Trash2 size={16} /></button>
+                </div>
               </div>
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => handleEdit(cat)} className="p-2 text-gray-400 hover:text-primary"><Edit size={16} /></button>
-                <button onClick={() => handleDelete(cat.id)} className="p-2 text-gray-400 hover:text-red-500"><Trash2 size={16} /></button>
+            ) : (
+              <div className="flex items-start justify-between p-6 pb-2">
+                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center text-primary">
+                  <Tags size={24} />
+                </div>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => handleEdit(cat)} className="p-2 text-gray-400 hover:text-primary"><Edit size={16} /></button>
+                  <button onClick={() => handleDelete(cat.id)} className="p-2 text-gray-400 hover:text-red-500"><Trash2 size={16} /></button>
+                </div>
               </div>
+            )}
+            <div className="p-6 pt-4 flex-1">
+              <h3 className="text-lg font-bold text-primary mb-1">{cat.name}</h3>
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-3 flex items-center gap-1">
+                <Hash size={10} /> {cat.slug}
+              </p>
+              <p className="text-sm text-gray-500 line-clamp-2">{cat.description || 'No description provided.'}</p>
             </div>
-            <h3 className="text-lg font-bold text-primary mb-1">{cat.name}</h3>
-            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-3 flex items-center gap-1">
-              <Hash size={10} /> {cat.slug}
-            </p>
-            <p className="text-sm text-gray-500 line-clamp-2">{cat.description || 'No description provided.'}</p>
           </motion.div>
         ))}
       </div>
@@ -184,6 +228,19 @@ const AdminCategories = () => {
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Slug (URL Identifier)</label>
                   <input type="text" required value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} className="w-full bg-gray-50 border border-gray-100 px-4 py-3 rounded-xl outline-none focus:border-secondary transition-all" placeholder="e.g. traditional-wear" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Category Image</label>
+                  <div className="flex gap-4 items-start">
+                    {formData.image_url && <img src={formData.image_url} alt="Preview" className="w-24 h-24 object-cover rounded-xl border border-gray-100" />}
+                    <div className="flex flex-col gap-2 flex-1">
+                      <label className="btn border border-secondary text-secondary hover:bg-secondary/5 cursor-pointer max-w-xs justify-center text-sm py-2">
+                        {isUploading ? <div className="w-4 h-4 border-2 border-secondary border-t-transparent rounded-full animate-spin" /> : <><Upload size={16} className="mr-2" /> Upload Image</>}
+                        <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={handleImageUpload} />
+                      </label>
+                      <input type="text" value={formData.image_url} onChange={(e) => setFormData({...formData, image_url: e.target.value})} className="w-full bg-gray-50 border border-gray-100 px-4 py-2 rounded-xl outline-none focus:border-secondary transition-all text-sm" placeholder="Or enter image URL" />
+                    </div>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Description</label>

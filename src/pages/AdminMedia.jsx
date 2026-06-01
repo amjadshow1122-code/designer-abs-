@@ -109,7 +109,7 @@ const AdminMedia = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-heading font-bold text-primary">Media Library</h1>
-          <p className="text-gray-500 text-sm">Manage all heritage assets and platform imagery.</p>
+          <p className="text-gray-500 text-sm">Manage all platform media assets, product images, and sale imagery.</p>
         </div>
         <label className="btn btn-primary px-8 py-2.5 gap-2 cursor-pointer shadow-lg shadow-primary/10 transition-all hover:scale-105 active:scale-95">
           {isUploading ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
