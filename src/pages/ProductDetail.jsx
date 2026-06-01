@@ -142,9 +142,9 @@ const ProductDetail = () => {
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="aspect-square bg-gray-50 rounded-sm overflow-hidden"
+              className="bg-gray-50 rounded-sm overflow-hidden flex items-center justify-center"
             >
-              <img src={mainImage} alt={product.name} className="w-full h-full object-cover" />
+              <img src={mainImage} alt={product.name} className="w-full h-auto object-contain" />
             </motion.div>
             {product.images && product.images.length > 0 && (
               <div className="flex gap-4">
