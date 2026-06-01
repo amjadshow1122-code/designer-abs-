@@ -111,7 +111,7 @@ const Header = () => {
     <header className="fixed top-0 left-0 w-full z-50 pointer-events-none">
       {/* Top Bar Announcement */}
       <div className="pointer-events-auto">
-        {config?.top_bar && !isScrolled && (
+        {config?.top_bar_enabled !== false && config?.top_bar && !isScrolled && (
           <div className="bg-ink text-bg text-center py-2 font-mono text-[10.5px] tracking-[0.18em] uppercase transition-all duration-300">
             {config.top_bar}
           </div>

@@ -155,12 +155,25 @@ const HeaderFooterTab = ({ settings, setSettings, handleLogoUpload }) => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Top Bar Announcement</label>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Top Bar Announcement</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer"
+                  checked={settings.header_config?.top_bar_enabled !== false}
+                  onChange={(e) => setSettings({...settings, header_config: {...settings.header_config, top_bar_enabled: e.target.checked}})} 
+                />
+                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+                <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">{settings.header_config?.top_bar_enabled !== false ? 'ON' : 'OFF'}</span>
+              </label>
+            </div>
             <input 
               type="text" 
               value={settings.header_config?.top_bar || ''} 
               onChange={(e) => setSettings({...settings, header_config: {...settings.header_config, top_bar: e.target.value}})} 
-              className="bg-gray-50 border border-transparent focus:bg-white focus:border-secondary px-4 py-3 rounded-lg text-sm outline-none transition-all" 
+              className={`bg-gray-50 border border-transparent focus:bg-white focus:border-secondary px-4 py-3 rounded-lg text-sm outline-none transition-all ${settings.header_config?.top_bar_enabled === false ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={settings.header_config?.top_bar_enabled === false}
             />
           </div>
 
