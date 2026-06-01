@@ -47,26 +47,27 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#D4A373] flex items-center justify-center py-20 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-bg flex items-center justify-center py-20 px-4 relative overflow-hidden">
       {/* Abstract Tech Background */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #775a19 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(42,37,32,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
       </div>
-      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/10 rounded-full blur-[120px]"></div>
       
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-lg bg-[#001c4d] border border-white/10 rounded-2xl shadow-2xl overflow-hidden relative z-10"
+        className="w-full max-w-lg bg-white border border-line rounded-sm shadow-xl overflow-hidden relative z-10"
       >
         <div className="p-10 md:p-12 flex flex-col gap-10">
           <div className="flex flex-col items-center text-center gap-4">
             <div className="flex items-center justify-center">
-              <span className="font-heading text-2xl font-bold text-white tracking-widest uppercase">DESIGNER<span className="text-secondary">SALE</span></span>
+              <span className="font-heading text-[26px] leading-none text-ink tracking-tight">
+                Designer<span className="italic text-gold-deep">Sale</span>
+              </span>
             </div>
             <div>
-              <h1 className="text-3xl font-heading font-bold text-white tracking-tight">Admin Terminal</h1>
-              <p className="text-gray-400 text-sm mt-1 uppercase tracking-[0.2em] font-bold">DesignerSale Management System</p>
+              <h1 className="text-3xl font-display text-ink tracking-tight">Admin Terminal</h1>
+              <p className="text-ink-muted text-[10px] mt-1 uppercase tracking-[0.2em] font-bold">Management System</p>
             </div>
           </div>
 
@@ -74,7 +75,7 @@ const AdminLogin = () => {
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="bg-red-500/10 text-red-500 p-4 rounded-xl text-xs font-bold border border-red-500/20 text-center"
+              className="bg-red-50 text-red-500 p-4 rounded-sm text-xs font-bold border border-red-100 text-center"
             >
               {error}
             </motion.div>
@@ -82,31 +83,31 @@ const AdminLogin = () => {
 
           <form onSubmit={handleAdminLogin} className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 ml-1">Admin Identifier</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-ink-soft ml-1">Admin Identifier</label>
               <div className="relative">
-                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted" />
                 <input 
                   type="email" 
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@designersale.com.au"
-                  className="w-full bg-[#002a70] border border-white/5 px-12 py-4 rounded-xl outline-none focus:border-secondary focus:bg-[#00348a] transition-all text-sm text-white placeholder:text-gray-600"
+                  className="w-full bg-bg border border-line px-12 py-4 rounded-sm outline-none focus:border-gold focus:bg-white transition-all text-sm text-ink placeholder:text-ink-muted"
                 />
               </div>
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 ml-1">Security Key</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-ink-soft ml-1">Security Key</label>
               <div className="relative">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted" />
                 <input 
                   type="password" 
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full bg-[#002a70] border border-white/5 px-12 py-4 rounded-xl outline-none focus:border-secondary focus:bg-[#00348a] transition-all text-sm text-white placeholder:text-gray-600"
+                  className="w-full bg-bg border border-line px-12 py-4 rounded-sm outline-none focus:border-gold focus:bg-white transition-all text-sm text-ink placeholder:text-ink-muted"
                 />
               </div>
             </div>
@@ -114,10 +115,10 @@ const AdminLogin = () => {
             <button 
               type="submit" 
               disabled={loading}
-              className="bg-secondary hover:bg-secondary-light text-white w-full py-4 rounded-xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all mt-4"
+              className="bg-ink hover:bg-ink-soft text-bg w-full py-4 rounded-sm font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all mt-4"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <div className="w-5 h-5 border-2 border-bg/30 border-t-bg rounded-full animate-spin"></div>
               ) : (
                 <>
                   <Terminal size={18} />
@@ -127,12 +128,12 @@ const AdminLogin = () => {
             </button>
           </form>
 
-          <div className="flex items-center justify-between pt-4 border-t border-white/5">
+          <div className="flex items-center justify-between pt-4 border-t border-line">
             <div className="flex items-center gap-2">
-              <Activity size={14} className="text-green-500" />
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">System Online</span>
+              <Activity size={14} className="text-green-600" />
+              <span className="text-[10px] font-bold text-ink-soft uppercase tracking-widest">System Online</span>
             </div>
-            <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">v2.4.0-Stable</span>
+            <span className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">v2.4.0-Stable</span>
           </div>
         </div>
       </motion.div>
