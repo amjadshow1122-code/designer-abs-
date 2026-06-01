@@ -375,7 +375,6 @@ const AdminOrders = () => {
               )}
             </tbody>
           </table>
-        </div>
 
         {/* Pagination */}
         <div className="p-6 border-t border-gray-50 flex items-center justify-between">
