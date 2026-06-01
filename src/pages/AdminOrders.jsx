@@ -374,6 +374,7 @@ const AdminOrders = () => {
                 </tr>
               )}
             </tbody>
+          </table>
         </div>
 
         {/* Pagination */}
